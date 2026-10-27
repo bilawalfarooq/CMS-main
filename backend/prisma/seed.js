@@ -87,6 +87,11 @@ async function main() {
     { name: 'Computer Applications', code: 'CS-101', department: 'Computer Science & Robotics' },
     { name: 'English Literature', code: 'ENG-101', department: 'Languages & Literature' },
     { name: 'Chemistry Practical', code: 'CHM-101', department: 'Physics & Applied Sciences' },
+    { name: 'Biology Principles', code: 'BIO-101', department: 'Physics & Applied Sciences' },
+    { name: 'World History', code: 'HIS-101', department: 'Social Sciences & Humanities' },
+    { name: 'Physical Education', code: 'PED-101', department: 'Athletics & Physical Fitness' },
+    { name: 'Robotics Workshop', code: 'ROB-101', department: 'Computer Science & Robotics' },
+    { name: 'Languages & Speech', code: 'LNG-101', department: 'Languages & Literature' },
   ];
 
   const subjectMap = {};
