@@ -8,12 +8,11 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { api } from '../../services/apiClient';
-import { TIMETABLE_DATA } from '../../data/mockData';
 
 export default function TimetableView() {
   const [selectedSection, setSelectedSection] = useState('10-A (Science)');
   const [selectedDay, setSelectedDay] = useState('All');
-  const [scheduleData, setScheduleData] = useState(TIMETABLE_DATA);
+  const [scheduleData, setScheduleData] = useState({});
 
   useEffect(() => {
     let isMounted = true;
@@ -36,7 +35,7 @@ export default function TimetableView() {
   }, [selectedSection]);
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-  const currentSchedule = scheduleData[selectedSection] || TIMETABLE_DATA[selectedSection] || TIMETABLE_DATA['10-A (Science)'];
+  const currentSchedule = scheduleData[selectedSection] || scheduleData[Object.keys(scheduleData)[0]] || {};
 
   const displayedDays = selectedDay === 'All' ? days : [selectedDay];
 

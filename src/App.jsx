@@ -20,7 +20,7 @@ const TimetableView = lazy(() => import('./components/timetable/TimetableView'))
 const AttendanceEngineView = lazy(() => import('./components/attendance/AttendanceEngineView'));
 const GradebookView = lazy(() => import('./components/gradebook/GradebookView'));
 const GuardianPortalView = lazy(() => import('./components/portal/GuardianPortalView'));
-const SystemHealthView = lazy(() => import('./components/settings/SystemHealthView'));
+
 const NotificationDrawer = lazy(() => import('./components/notifications/NotificationDrawer'));
 const RbacMatrixView = lazy(() => import('./components/security/RbacMatrixView'));
 const AuditLogsView = lazy(() => import('./components/security/AuditLogsView'));
@@ -74,6 +74,7 @@ function AppContent() {
     setCurrentRole,
     academicYear,
     setAcademicYear,
+    academicYears,
     students,
     staff,
     queueJobs,
@@ -104,14 +105,22 @@ function AppContent() {
     logout,
   } = useCMS();
 
+  // If role is guardian or student and activeTab is dashboard, redirect to portal
+  React.useEffect(() => {
+    if ((currentRole === 'guardian' || currentRole === 'student') && activeTab === 'dashboard') {
+      setActiveTab('portal');
+    }
+  }, [currentRole, activeTab, setActiveTab]);
+
   // If checking existing stored token, show loading splash
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white">
-        <div className="w-12 h-12 rounded-2xl bg-brand-600 flex items-center justify-center animate-pulse mb-3 shadow-xl shadow-brand-500/30">
-          <School className="w-6 h-6" />
+      <div className="min-h-screen bg-[#0d1933] flex flex-col items-center justify-center text-white">
+        <div className="p-3 rounded-2xl bg-white shadow-xl shadow-black/30 mb-3 animate-pulse">
+          <img src="/logo.webp" alt="AMSTech" className="w-10 h-10 object-contain" />
         </div>
-        <p className="text-xs text-slate-400 font-medium">Verifying Institutional Session...</p>
+        <p className="text-xs text-amber-300 font-semibold tracking-wide">AMSTech Session Authorization...</p>
+        <p className="text-[10px] text-slate-400 mt-1">Al-Mustafa Institute of Science &amp; Technology</p>
       </div>
     );
   }
@@ -131,6 +140,7 @@ function AppContent() {
       <Navbar 
         currentRole={currentRole} 
         setCurrentRole={setCurrentRole}
+        academicYears={academicYears}
         academicYear={academicYear}
         setAcademicYear={setAcademicYear}
         onOpenQuickAdmission={() => setIsAdmissionModalOpen(true)}
@@ -160,18 +170,23 @@ function AppContent() {
           ) : (
             <Suspense fallback={<ViewLoadingSkeleton />}>
               {activeTab === 'dashboard' && (
-                <DashboardView 
-                  students={students} 
-                  staff={staff}
-                  setActiveTab={setActiveTab}
-                  onOpenQuickAdmission={() => setIsAdmissionModalOpen(true)}
-                  currentRole={currentRole}
-                />
+                (currentRole === 'guardian' || currentRole === 'student') ? (
+                  <GuardianPortalView 
+                    onQueueJob={queueJob}
+                  />
+                ) : (
+                  <DashboardView 
+                    students={students} 
+                    staff={staff}
+                    setActiveTab={setActiveTab}
+                    onOpenQuickAdmission={() => setIsAdmissionModalOpen(true)}
+                    currentRole={currentRole}
+                  />
+                )
               )}
 
               {activeTab === 'portal' && (
                 <GuardianPortalView 
-                  student={students[0]}
                   onQueueJob={queueJob}
                 />
               )}
@@ -249,11 +264,7 @@ function AppContent() {
                 <AuditLogsView />
               )}
 
-              {activeTab === 'system_health' && (
-                <SystemHealthView 
-                  onQueueJob={queueJob}
-                />
-              )}
+
             </Suspense>
           )}
         </main>

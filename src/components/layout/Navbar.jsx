@@ -2,22 +2,21 @@ import React from 'react';
 import { 
   Bell, 
   Search, 
-  ShieldCheck, 
   Calendar, 
   Cpu, 
-  Sparkles,
   School,
   LogOut,
   Moon,
   Sun
 } from 'lucide-react';
-import { ROLES, ACADEMIC_YEARS } from '../../data/mockData';
+import { ROLES } from '../../data/mockData';
 
 export default function Navbar({ 
   currentRole, 
   setCurrentRole, 
   academicYear, 
   setAcademicYear, 
+  academicYears = [],
   onOpenQuickAdmission,
   onOpenNotifications,
   onOpenCommandPalette,
@@ -33,38 +32,47 @@ export default function Navbar({
       <div className="flex items-center justify-between gap-4">
         {/* Brand & Academic Year Context */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
-              <School className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-slate-900 dark:text-white tracking-tight text-lg">EduCore</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-brand-50 text-brand-700 dark:bg-brand-950/80 dark:text-brand-300 px-1.5 py-0.5 rounded border border-brand-200 dark:border-brand-800">
-                  CMS
-                </span>
+          <div className="flex items-center gap-3">
+            <a href="https://amstech.edu.pk" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 group">
+              <img 
+                src="/logo.webp" 
+                alt="AMSTech Logo" 
+                className="h-10 w-auto object-contain group-hover:scale-105 transition-transform" 
+              />
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-extrabold text-[#1c3b73] dark:text-white tracking-tight text-lg">AMSTech</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100/80 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-300/80 dark:border-amber-700">
+                    CMS
+                  </span>
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider bg-blue-50 text-[#1c3b73] dark:bg-slate-800 dark:text-blue-300 px-2 py-0.5 rounded-full border border-blue-200 dark:border-slate-700">
+                    SBTE
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 hidden sm:block leading-tight">Al-Mustafa Institute of Science & Technology</p>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Apex Institute of Science & Technology</p>
-            </div>
+            </a>
           </div>
 
-          <div className="hidden lg:flex items-center ml-6 pl-6 border-l border-slate-200 dark:border-slate-800">
-            <div className="flex items-center gap-2 bg-slate-100/90 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 transition">
-              <Calendar className="w-3.5 h-3.5 text-brand-600" />
-              <span>Year:</span>
-              <select 
-                value={academicYear} 
-                onChange={(e) => setAcademicYear(e.target.value)}
-                className="bg-transparent font-semibold text-slate-900 dark:text-white cursor-pointer outline-none focus:ring-0"
-              >
-                {ACADEMIC_YEARS.map(ay => (
-                  <option key={ay.id} value={ay.id} className="dark:bg-slate-800">
-                    {ay.name} ({ay.status})
-                  </option>
-                ))}
-              </select>
+          {(currentRole === 'super_admin' || currentRole === 'admin_staff') && (
+            <div className="hidden lg:flex items-center ml-6 pl-6 border-l border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2 bg-slate-100/90 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 transition">
+                <Calendar className="w-3.5 h-3.5 text-brand-600" />
+                <span>Year:</span>
+                <select 
+                  value={academicYear} 
+                  onChange={(e) => setAcademicYear(e.target.value)}
+                  className="bg-transparent font-semibold text-slate-900 dark:text-white cursor-pointer outline-none focus:ring-0"
+                >
+                  {academicYears.map(ay => (
+                    <option key={ay.id} value={ay.id} className="dark:bg-slate-800">
+                      {ay.name} ({ay.status})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Global Search Bar (Triggers Command Palette) */}
@@ -94,48 +102,9 @@ export default function Navbar({
             {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
           </button>
 
-          {/* Queue & Job Status Pill */}
-          <div className="hidden xl:flex items-center gap-2 px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800 rounded-lg text-emerald-800 dark:text-emerald-300 text-xs font-medium">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <Cpu className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Redis Worker</span>
-            <span className="bg-emerald-200/60 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-200 font-semibold px-1 rounded text-[10px]">
-              {queueCount} in queue
-            </span>
-          </div>
 
-          {/* Quick Admission Button */}
-          {(currentRole === 'super_admin' || currentRole === 'admin_staff') && (
-            <button 
-              onClick={onOpenQuickAdmission}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm shadow-brand-500/20 transition active:scale-95"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Admit Student</span>
-            </button>
-          )}
 
-          {/* Role Switcher Sandbox */}
-          <div className="relative flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
-            <div className="flex items-center gap-1.5 px-2 py-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-brand-600" />
-              <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 hidden md:inline">Role:</span>
-              <select 
-                value={currentRole}
-                onChange={(e) => setCurrentRole(e.target.value)}
-                className="bg-white dark:bg-slate-700 text-xs font-bold text-slate-800 dark:text-white border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1 outline-none cursor-pointer shadow-sm"
-              >
-                {ROLES.map(role => (
-                  <option key={role.id} value={role.id}>
-                    {role.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+
 
           {/* Notifications Button */}
           <button 

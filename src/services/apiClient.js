@@ -1,7 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
 
 // Token storage key
-const TOKEN_KEY = 'educore_auth_token';
+const TOKEN_KEY = 'amstech_auth_token';
 
 export function getStoredToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -37,8 +37,8 @@ async function request(endpoint, options = {}) {
   try {
     const response = await fetch(url, config);
 
-    // If unauthorized or disabled, clear token
-    if (response.status === 401 || response.status === 403) {
+    // If unauthorized (401), session token is expired or invalid -> clear token
+    if (response.status === 401) {
       if (endpoint !== '/auth/login') {
         setStoredToken(null);
       }
@@ -159,7 +159,16 @@ export const api = {
       return request(`/finance/invoices${q ? `?${q}` : ''}`);
     },
     createInvoice: (data) => request('/finance/invoices', { method: 'POST', body: data }),
-    payInvoice: (id, receiptNo) => request(`/finance/invoices/${id}/pay`, { method: 'POST', body: { receiptNo } }),
+    bulkGenerate: (data) => request('/finance/invoices/bulk-generate', { method: 'POST', body: data }),
+    payInvoice: (id, payload) =>
+      request(`/finance/invoices/${id}/pay`, {
+        method: 'POST',
+        body: typeof payload === 'object' ? payload : { receiptNo: payload },
+      }),
+    cancelInvoice: (id, reason) => request(`/finance/invoices/${id}/cancel`, { method: 'POST', body: { reason } }),
+    getPayments: () => request('/finance/payments'),
+    getFeeStructures: () => request('/finance/fee-structures'),
+    getWaivers: () => request('/finance/waivers'),
   },
 
   // Documents
@@ -174,7 +183,11 @@ export const api = {
 
   // Portal
   portal: {
-    getChildren: () => request('/portal/students'),
+    getChildren: (params = {}) => {
+      const q = new URLSearchParams(params).toString();
+      return request(`/portal/students${q ? `?${q}` : ''}`);
+    },
+    getGuardians: () => request('/portal/guardians'),
     sendExcuseNote: (studentId, excuseNote) =>
       request(`/portal/students/${studentId}/excuse-note`, { method: 'POST', body: { excuseNote } }),
   },

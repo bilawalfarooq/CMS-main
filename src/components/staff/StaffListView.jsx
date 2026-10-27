@@ -46,15 +46,15 @@ export default function StaffListView({ staff, onAddStaff, currentRole }) {
 
     const created = {
       name: newStaff.name,
-      email: `${newStaff.name.toLowerCase().replace(/\s+/g, '.')}@educore.edu`,
+      email: `${newStaff.name.toLowerCase().replace(/\s+/g, '.')}@amstech.edu.pk`,
       department: newStaff.department,
       role: newStaff.role,
       contract: newStaff.contract,
       teachingHours: Number(newStaff.teachingHours),
       maxHours: Number(newStaff.maxHours),
-      assignedClasses: ['Grade 10-B', 'Grade 11-A'],
+      assignedClasses: ['DAE-AI-1A', 'DAE-SoftTech-1A'],
       status: 'Active',
-      phone: newStaff.phone || '+1 (555) 782-9900',
+      phone: newStaff.phone || '+92 335 5662266',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
     };
 

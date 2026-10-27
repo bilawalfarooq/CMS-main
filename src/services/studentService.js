@@ -1,18 +1,20 @@
-import { ACADEMIC_YEARS } from '../data/mockData.js';
-
 /**
  * Academic Year Normalization Helpers
  */
 export function getAcademicYearId(yearOrId) {
   if (!yearOrId) return 'ay-2026';
-  const match = ACADEMIC_YEARS.find(ay => ay.id === yearOrId || ay.name === yearOrId);
-  return match ? match.id : yearOrId;
+  if (yearOrId === '2026 - 2027') return 'ay-2026';
+  if (yearOrId === '2025 - 2026') return 'ay-2025';
+  if (yearOrId === '2024 - 2025') return 'ay-2024';
+  return yearOrId;
 }
 
 export function getAcademicYearName(yearOrId) {
   if (!yearOrId) return '2026 - 2027';
-  const match = ACADEMIC_YEARS.find(ay => ay.id === yearOrId || ay.name === yearOrId);
-  return match ? match.name : yearOrId;
+  if (yearOrId === 'ay-2026') return '2026 - 2027';
+  if (yearOrId === 'ay-2025') return '2025 - 2026';
+  if (yearOrId === 'ay-2024') return '2024 - 2025';
+  return yearOrId;
 }
 
 export function areAcademicYearsEqual(yearA, yearB) {
@@ -24,7 +26,7 @@ export function areAcademicYearsEqual(yearA, yearB) {
  * Collision-Resistant Student ID Generator
  * Generates an ID using the format STU-YYYY-XXXX and verifies uniqueness against all existing records.
  */
-export function generateStudentId(existingStudents = [], prefix = 'STU-2026') {
+export function generateStudentId(existingStudents = [], prefix = 'AMS-2026') {
   const existingIds = new Set(existingStudents.map(s => String(s.id || '').toUpperCase()));
   let candidate = '';
   let attempts = 0;
@@ -52,7 +54,7 @@ export function generateStudentEmail(fullName, existingStudents = []) {
     .replace(/[^a-z0-9\s]/g, '')
     .replace(/\s+/g, '.');
 
-  const domain = 'student.educore.edu';
+  const domain = 'student.amstech.edu.pk';
   const existingEmails = new Set(existingStudents.map(s => String(s.email || '').toLowerCase()));
 
   let candidate = `${baseUser}@${domain}`;

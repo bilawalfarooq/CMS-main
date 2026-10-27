@@ -176,7 +176,7 @@ export default function StudentListView({
               const url = window.URL.createObjectURL(blob);
               const a = document.createElement('a');
               a.href = url;
-              a.download = `educore_students_${new Date().toISOString().slice(0, 10)}.csv`;
+              a.download = `amstech_students_${new Date().toISOString().slice(0, 10)}.csv`;
               a.click();
               window.URL.revokeObjectURL(url);
             }}

@@ -15,7 +15,6 @@ import {
   Check
 } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
-import { QUEUE_ACTIVITIES } from '../../data/mockData';
 
 export default function DashboardView({ 
   students, 
@@ -31,17 +30,17 @@ export default function DashboardView({
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-950 text-white p-6 sm:p-8 shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#162e5a] via-[#1c3b73] to-[#0d1933] text-white p-6 sm:p-8 shadow-xl">
         <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 border border-brand-400/30 text-brand-300 text-xs font-semibold mb-3">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Academic Cycle 2026-2027 • Term 1 Active</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-semibold mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-[#ebb51d]" />
+            <span>AMSTech Session 2026 • SBTE Affiliated Campus</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Institute Operational Overview
+            AMSTech Institute Operations &amp; Academic Portal
           </h1>
           <p className="mt-2 text-slate-300 text-sm leading-relaxed">
-            Centralized portal monitoring real-time enrollments, asynchronous guardian notification pipelines, faculty allocations, and section attendance records.
+            Al-Mustafa Institute of Science &amp; Technology — Centralized management tracking D.A.E, D.I.T, and Diploma technical cohorts, practical lab attendance, WhatsApp dispatches, and SBTE compliance.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-3">
@@ -250,7 +249,7 @@ export default function DashboardView({
           </div>
         </div>
 
-        {/* Right 1 Col: Redis Asynchronous Queue & Horizon Activity */}
+        {/* Right 1 Col: Background Task Activity */}
         <div className="space-y-6">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -259,15 +258,15 @@ export default function DashboardView({
                   <Send className="w-4 h-4 text-brand-600" />
                   Background Queue Stream
                 </h3>
-                <p className="text-xs text-slate-500">Redis 7.x asynchronous worker log</p>
+                <p className="text-xs text-slate-500">Background task activity log</p>
               </div>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-600 font-bold">
-                Port 6379
+                Active
               </span>
             </div>
 
             <div className="mt-4 space-y-3">
-              {(queueJobs && queueJobs.length > 0 ? queueJobs : QUEUE_ACTIVITIES).slice(0, 5).map(job => (
+              {(queueJobs || []).slice(0, 5).map(job => (
                 <div 
                   key={job.id} 
                   className="p-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 border border-slate-100 transition text-xs"
@@ -296,12 +295,7 @@ export default function DashboardView({
                 <Check className="w-3.5 h-3.5 text-emerald-500" />
                 Zero unhandled exceptions
               </span>
-              <button 
-                onClick={() => setActiveTab('system_health')}
-                className="font-semibold text-brand-600 hover:text-brand-700"
-              >
-                Inspect Metrics
-              </button>
+
             </div>
           </div>
 

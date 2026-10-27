@@ -271,7 +271,7 @@ export default function StudentProfileView({ studentId, onBack }) {
 
                 <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-700/60">
                   <span className="text-slate-400 font-semibold block text-[10px] uppercase">Previous School Attended</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-100">{student.previousSchool || 'Apex Junior Academy'}</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-100">{student.previousSchool || 'Al-Mustafa High School'}</span>
                 </div>
               </div>
 

@@ -51,7 +51,7 @@ export default function CommandPaletteModal({
     { label: 'Granular RBAC Policy Matrix', tab: 'rbac', icon: ShieldCheck },
     { label: 'Security Audit Trail Logs', tab: 'audit', icon: ShieldCheck },
     { label: 'Exam Session Scheduler', tab: 'exams', icon: Calendar },
-    { label: 'System & Redis Queue Telemetry', tab: 'system_health', icon: Server },
+
   ];
 
   const matchedStudents = students.filter(s => 

@@ -50,14 +50,14 @@ export default function StudentIdCardModal({ isOpen, onClose, student }) {
 
       <div className="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header (No print) */}
-        <div className="no-print px-6 py-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+        <div className="no-print px-6 py-4 bg-gradient-to-r from-[#162e5a] via-[#1c3b73] to-[#0d1933] text-white flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-brand-500/20 border border-brand-400/30 flex items-center justify-center text-brand-300">
-              <School className="w-4 h-4" />
+            <div className="h-8 w-auto bg-white/90 p-1 rounded-lg">
+              <img src="/logo.webp" alt="AMSTech" className="h-6 w-auto object-contain" />
             </div>
             <div>
               <h3 className="font-bold text-base leading-tight">Student Identity Credential</h3>
-              <p className="text-xs text-slate-300">Official EduCore SIS Institutional ID Card</p>
+              <p className="text-xs text-amber-300">Official AMSTech Institutional SIS Card • SBTE Affiliated</p>
             </div>
           </div>
           <button 
@@ -75,16 +75,15 @@ export default function StudentIdCardModal({ isOpen, onClose, student }) {
             {/* FRONT OF ID CARD */}
             <div className="w-full aspect-[1/1.58] max-w-[280px] mx-auto bg-white rounded-2xl shadow-xl border-2 border-slate-200 overflow-hidden flex flex-col text-slate-900 relative">
               {/* Top Banner */}
-              <div className="bg-gradient-to-r from-brand-700 via-indigo-800 to-brand-900 text-white p-3.5 text-center relative overflow-hidden">
+              <div className="bg-gradient-to-r from-[#162e5a] via-[#1c3b73] to-[#162e5a] text-white p-3 text-center relative overflow-hidden">
                 <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-white/10 rounded-full blur-sm" />
-                <div className="flex items-center justify-center gap-1.5 mb-1">
-                  <div className="w-5 h-5 rounded bg-white/20 flex items-center justify-center text-white">
-                    <School className="w-3.5 h-3.5" />
-                  </div>
-                  <h4 className="font-black text-xs tracking-wider uppercase">EDUCORE ACADEMY</h4>
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <img src="/logo.webp" alt="AMSTech" className="h-5 w-auto object-contain bg-white rounded px-1" />
+                  <h4 className="font-black text-xs tracking-wider uppercase">AMSTECH</h4>
+                  <img src="/sbte.svg" alt="SBTE" className="h-5 w-auto object-contain bg-white rounded px-0.5" />
                 </div>
-                <p className="text-[9px] uppercase tracking-widest text-brand-200 font-semibold">
-                  Official Student Identity Card
+                <p className="text-[8.5px] uppercase tracking-wider text-amber-300 font-semibold leading-tight">
+                  Al-Mustafa Institute of Science & Technology
                 </p>
               </div>
 
@@ -189,10 +188,10 @@ export default function StudentIdCardModal({ isOpen, onClose, student }) {
                   </div>
 
                   <div className="flex items-start gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
+                    <MapPin className="w-3.5 h-3.5 text-[#1c3b73] shrink-0 mt-0.5" />
                     <div>
                       <span className="font-semibold block text-slate-900">Campus Address:</span>
-                      <span className="text-slate-600">EduCore Academy, 742 Evergreen Terrace</span>
+                      <span className="text-slate-600 leading-tight block">Plot #87, Street #15/16, Muslimabad, Kashmir Road, Karachi</span>
                     </div>
                   </div>
                 </div>
@@ -201,8 +200,7 @@ export default function StudentIdCardModal({ isOpen, onClose, student }) {
               {/* Return Policy & Authorized Signature */}
               <div className="space-y-2 pt-2 border-t border-slate-200">
                 <p className="text-[8px] text-slate-500 text-center leading-tight">
-                  This card is non-transferable and remains the property of EduCore International Academy.
-                  If found, please deposit in any postal mailbox or return to the Registrar Office.
+                  This card remains the property of AMSTech (Al-Mustafa Institute of Science &amp; Technology). If found, return to Registrar Office, Muslimabad, Karachi. Helpline: 0335-5662266.
                 </p>
 
                 <div className="flex items-end justify-between px-2 pt-1">
@@ -214,9 +212,9 @@ export default function StudentIdCardModal({ isOpen, onClose, student }) {
                   </div>
 
                   <div className="text-right">
-                    <span className="font-serif italic text-xs text-brand-900 block leading-none">Evelyn Reed</span>
+                    <span className="font-serif italic text-xs text-[#1c3b73] block leading-none">Jamal Uddin Rajput</span>
                     <span className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold block border-t border-slate-300 mt-0.5 pt-0.5">
-                      Registrar Seal
+                      Principal / Secretary
                     </span>
                   </div>
                 </div>

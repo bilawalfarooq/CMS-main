@@ -12,11 +12,10 @@ import {
 } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
 import { api } from '../../services/apiClient';
-import { AUDIT_LOGS } from '../../data/mockData';
 
 export default function AuditLogsView() {
   const { auditLogs } = useCMS();
-  const logs = auditLogs && auditLogs.length > 0 ? auditLogs : AUDIT_LOGS;
+  const logs = auditLogs || [];
   const [filterAction, setFilterAction] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -51,7 +50,7 @@ export default function AuditLogsView() {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `educore_audit_log_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.download = `amstech_audit_log_${new Date().toISOString().slice(0, 10)}.csv`;
             a.click();
           }}
           className="px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-50 transition flex items-center gap-1.5"
@@ -86,7 +85,7 @@ export default function AuditLogsView() {
               <option value="All">All Events</option>
               <option value="GRADE_BATCH_UPDATE">Grade Updates</option>
               <option value="STUDENT_ADMISSION">Student Admissions</option>
-              <option value="REDIS_DISPATCH_SMS">SMS Dispatches</option>
+              <option value="SMS_DISPATCH">SMS Dispatches</option>
               <option value="DATABASE_BACKUP_EXEC">Database Snapshots</option>
             </select>
           </div>

@@ -13,11 +13,11 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
-import { INITIAL_CLASSES, ACADEMIC_YEARS } from '../../data/mockData';
 
 export default function AcademicHierarchyView({ currentRole }) {
-  const { classes: contextClasses, simulateAcademicRollover } = useCMS();
-  const classes = contextClasses && contextClasses.length > 0 ? contextClasses : INITIAL_CLASSES;
+  const { classes: contextClasses, academicYears, simulateAcademicRollover } = useCMS();
+  const classes = contextClasses || [];
+  const years = academicYears || [];
   const [selectedYear, setSelectedYear] = useState('ay-2026');
   const [showRolloverNotice, setShowRolloverNotice] = useState(false);
 
@@ -73,7 +73,7 @@ export default function AcademicHierarchyView({ currentRole }) {
 
       {/* Academic Year Isolations */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {ACADEMIC_YEARS.map(year => (
+        {years.map(year => (
           <div 
             key={year.id}
             onClick={() => setSelectedYear(year.id)}
@@ -115,8 +115,8 @@ export default function AcademicHierarchyView({ currentRole }) {
             >
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-sm">
-                    {item.name.replace('Grade ', 'G')}
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#1c3b73] flex items-center justify-center font-bold text-xs uppercase">
+                    {item.name.slice(0, 3)}
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm">{item.name}</h4>
@@ -150,8 +150,8 @@ export default function AcademicHierarchyView({ currentRole }) {
 
               {/* Subject Breakdown */}
               <div className="pt-2 text-xs text-slate-500 flex items-center justify-between">
-                <span>Core Curriculum: STEM & Humanities</span>
-                <span className="font-semibold text-brand-600">8 Subjects Active</span>
+                <span>Core Curriculum: SBTE Technical Standards (AI, Cyber, SoftTech)</span>
+                <span className="font-semibold text-brand-600">8 Modules Active</span>
               </div>
             </div>
           ))}

@@ -18,11 +18,10 @@ import {
 } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
 import { api } from '../../services/apiClient';
-import { INITIAL_SYSTEM_USERS } from '../../data/mockData';
 
 export default function UserManagementView({ onQueueJob }) {
   const { systemUsers, toggleUserStatus, addUser } = useCMS();
-  const users = systemUsers && systemUsers.length > 0 ? systemUsers : INITIAL_SYSTEM_USERS;
+  const users = systemUsers || [];
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
@@ -64,13 +63,13 @@ export default function UserManagementView({ onQueueJob }) {
   // Open Password Reset Modal
   const handleOpenResetModal = (user) => {
     setResetModalUser(user);
-    const generated = `EduCore#${Math.floor(1000 + Math.random() * 9000)}!`;
+    const generated = `AMSTech#${Math.floor(1000 + Math.random() * 9000)}!`;
     setTempPassword(generated);
     setCopied(false);
     setResetSentNote('');
   };
 
-  // Dispatch Password Reset via Redis Queue
+  // Dispatch Password Reset
   const handleSendResetEmail = () => {
     if (resetModalUser) {
       api.users.sendReset(resetModalUser.id).catch((err) => {
@@ -87,7 +86,7 @@ export default function UserManagementView({ onQueueJob }) {
           description: `Secure one-time password reset link dispatched to ${resetModalUser.email}`
         });
       }
-      setResetSentNote(`Password reset token sent to ${resetModalUser?.email} via Redis Queue worker.`);
+      setResetSentNote(`Password reset token sent to ${resetModalUser?.email} successfully.`);
     }
   };
 
@@ -467,7 +466,7 @@ export default function UserManagementView({ onQueueJob }) {
                   required
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  placeholder="e.g. maya.chen@student.educore.edu"
+                  placeholder="e.g. danish.ali@student.amstech.edu.pk"
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg outline-none text-slate-800 dark:text-white focus:border-brand-500"
                 />
               </div>

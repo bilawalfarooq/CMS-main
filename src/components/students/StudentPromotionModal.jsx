@@ -12,7 +12,6 @@ import {
   Info
 } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
-import { ACADEMIC_YEARS } from '../../data/mockData';
 import {
   getAcademicYearName,
   areAcademicYearsEqual,
@@ -28,6 +27,7 @@ const GRADE_SECTIONS = {
 
 export default function StudentPromotionModal({ isOpen, onClose }) {
   const cms = useCMS();
+  const academicYearsList = cms?.academicYears || [];
   const students = cms?.students || [];
 
   // Filter Source Cohort
@@ -198,7 +198,7 @@ export default function StudentPromotionModal({ isOpen, onClose }) {
                         className="w-full px-2 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-brand-500/20 text-xs"
                       >
                         <option value="All">All Sessions</option>
-                        {ACADEMIC_YEARS.map((ay) => (
+                        {academicYearsList.map((ay) => (
                           <option key={ay.id} value={ay.id}>{ay.name}</option>
                         ))}
                       </select>
@@ -254,7 +254,7 @@ export default function StudentPromotionModal({ isOpen, onClose }) {
                         onChange={(e) => setTargetAcademicYear(e.target.value)}
                         className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-brand-500/20 text-xs"
                       >
-                        {ACADEMIC_YEARS.map((ay) => (
+                        {academicYearsList.map((ay) => (
                           <option key={ay.id} value={ay.id}>{ay.name} ({ay.status})</option>
                         ))}
                       </select>

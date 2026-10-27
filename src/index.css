@@ -4,7 +4,8 @@
 
 @layer base {
   :root {
-    --color-primary: 99 102 241;
+    --color-primary: 235 181 29; /* AMSTech Gold #ebb51d */
+    --color-secondary: 28 59 115; /* AMSTech Navy #1c3b73 */
   }
 }
 
@@ -40,4 +41,13 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

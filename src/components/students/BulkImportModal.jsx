@@ -19,12 +19,12 @@ export default function BulkImportModal({ isOpen, onClose, onImportStudents }) {
   const handleDownloadTemplate = () => {
     const csvContent = "data:text/csv;charset=utf-8," + 
       "Full Name,Grade,Section,Guardian Name,Guardian Phone,Guardian Email\n" +
-      "Elena Rostova,Grade 10,10-A (Science),Mikhail Rostov,+1 (555) 789-1122,mikhail.r@domain.com\n" +
-      "Devon Marcus Cole,Grade 11,11-ComputerScience,Sarah Cole,+1 (555) 891-3344,sarah.cole@domain.com\n";
+      "Muhammad Danish,DAE 1st Year (SBTE),DAE-AI-1A,Farhan Danish,+92 300 2345678,farhan.danish@gmail.com\n" +
+      "Kiran Shahzadi,DAE 2nd Year (SBTE),DAE-CyberSec-2A,Shahzad Akhtar,+92 333 9876543,shahzad.akhtar@yahoo.com\n";
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "educore_admissions_template.csv");
+    link.setAttribute("download", "amstech_admissions_template.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

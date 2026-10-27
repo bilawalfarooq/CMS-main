@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Upload, Check, Sparkles, AlertCircle, User, BookOpen, Users, ShieldAlert } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
-import { ACADEMIC_YEARS } from '../../data/mockData';
 import {
   validateStudentAdmission,
   getAcademicYearName,
@@ -421,7 +420,7 @@ export default function StudentModal({ isOpen, onClose, onAddStudent }) {
                     onChange={(e) => setFormData({ ...formData, academicYear: e.target.value })}
                     className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition font-medium"
                   >
-                    {ACADEMIC_YEARS.map((ay) => (
+                    {(cms?.academicYears || []).map((ay) => (
                       <option key={ay.id} value={ay.id}>
                         {ay.name} ({ay.status})
                       </option>

@@ -9,10 +9,9 @@ import {
   Trash2
 } from 'lucide-react';
 import { api } from '../../services/apiClient';
-import { NOTIFICATIONS_LOG } from '../../data/mockData';
 
 export default function NotificationDrawer({ isOpen, onClose, queueJobs }) {
-  const [notifications, setNotifications] = useState(NOTIFICATIONS_LOG);
+  const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('All');
 
   useEffect(() => {
@@ -73,7 +72,7 @@ export default function NotificationDrawer({ isOpen, onClose, queueJobs }) {
               </div>
               <div>
                 <h3 className="font-bold text-sm">Communication & Alert Dispatch Log</h3>
-                <p className="text-[11px] text-slate-300">Redis 7.x Queue Stream Telemetry</p>
+                <p className="text-[11px] text-slate-300">Background Task Activity Log</p>
               </div>
             </div>
 
@@ -125,7 +124,7 @@ export default function NotificationDrawer({ isOpen, onClose, queueJobs }) {
             {queueJobs && queueJobs.length > 0 && (
               <div className="space-y-2 mb-4">
                 <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                  Live Redis In-Flight Queue ({queueJobs.length})
+                  Active Background Tasks ({queueJobs.length})
                 </span>
                 {queueJobs.map(job => (
                   <div key={job.id} className="p-3 bg-brand-50/70 border border-brand-200 rounded-xl text-xs space-y-1">

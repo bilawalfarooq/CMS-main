@@ -10,11 +10,10 @@ import {
   Users
 } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
-import { EXAM_SCHEDULES } from '../../data/mockData';
 
 export default function ExamSchedulerView() {
   const { examSchedules, addExam } = useCMS();
-  const exams = examSchedules && examSchedules.length > 0 ? examSchedules : EXAM_SCHEDULES;
+  const exams = examSchedules || [];
   const [showAddExam, setShowAddExam] = useState(false);
   const [newExam, setNewExam] = useState({
     title: '',

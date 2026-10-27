@@ -102,7 +102,7 @@ export default function AttendanceEngineView({ onQueueJob }) {
       setNotification({
         type: 'success',
         title: 'Batch Attendance Committed Successfully',
-        details: `Saved ${result.total} student records via indexed batch transaction. ${result.absentCount} guardian SMS alerts queued to Redis.`,
+        details: `Saved ${result.total} student records via batch transaction. ${result.absentCount} guardian SMS alerts queued for delivery.`,
       });
     } catch (err) {
       setNotification({
@@ -130,7 +130,7 @@ export default function AttendanceEngineView({ onQueueJob }) {
             Section Attendance Engine
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Rapid single-grid period marking with automatic anomaly detection and background Redis SMS dispatch.
+            Rapid single-grid period marking with automatic anomaly detection and background SMS dispatch.
           </p>
         </div>
 

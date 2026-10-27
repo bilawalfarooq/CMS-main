@@ -85,7 +85,7 @@ export default function GradebookView({ onQueueJob }) {
     queueJob(job);
     if (onQueueJob) onQueueJob(job);
 
-    alert(`Queued PDF Report Card generator job for ${grades.length} students in ${selectedSection}. Check the Redis Queue Worker status on the Dashboard!`);
+    alert(`Queued PDF Report Card generator job for ${grades.length} students in ${selectedSection}. Check the Background Queue Stream on the Dashboard!`);
   };
 
   return (
@@ -344,8 +344,9 @@ export default function GradebookView({ onQueueJob }) {
               </div>
 
               <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1 text-[11px] text-slate-600 dark:text-slate-400">
-                <p><strong>Faculty Verification:</strong> Dr. Evelyn Reed (Signed electronically)</p>
-                <p><strong>Issued:</strong> October 2026 • EduCore Verification Token: <code>#EC-9981-TX</code></p>
+                <p><strong>Faculty Verification:</strong> Engr. Syed Rehan Ali (Signed electronically)</p>
+                <p><strong>Issued:</strong> October 2026 • AMSTech Verification Token: <code>#AMS-SBTE-9981-PK</code></p>
+                <p className="text-[10px] text-[#1c3b73] dark:text-amber-300 font-semibold">Affiliated with Sindh Board of Technical Education (SBTE)</p>
               </div>
 
               <div className="pt-2 flex justify-end gap-2">

@@ -14,11 +14,10 @@ import {
   X
 } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
-import { STUDENT_DOCUMENTS } from '../../data/mockData';
 
 export default function DocumentVaultView() {
   const { documents: contextDocs, addDocument } = useCMS();
-  const documents = contextDocs && contextDocs.length > 0 ? contextDocs : STUDENT_DOCUMENTS;
+  const documents = contextDocs || [];
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [showUploadModal, setShowUploadModal] = useState(false);

@@ -9,11 +9,18 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
-import { RBAC_PERMISSIONS_MATRIX, ROLES } from '../../data/mockData';
+import { ROLES } from '../../data/mockData';
 
 export default function RbacMatrixView() {
   const { rbacMatrix, saveRbacMatrix, resetRbacMatrix } = useCMS();
-  const [matrix, setMatrix] = useState(rbacMatrix && rbacMatrix.length > 0 ? rbacMatrix : RBAC_PERMISSIONS_MATRIX);
+  const [matrix, setMatrix] = useState(rbacMatrix || []);
+
+  React.useEffect(() => {
+    if (rbacMatrix && rbacMatrix.length > 0) {
+      setMatrix(rbacMatrix);
+    }
+  }, [rbacMatrix]);
+
   const [selectedRole, setSelectedRole] = useState('teacher');
   const [saveNote, setSaveNote] = useState('');
 
