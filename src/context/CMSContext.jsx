@@ -615,7 +615,21 @@ export function CMSProvider({ children }) {
     );
   };
 
-  const submitAttendanceBatch = async (section) => {
+  const fetchAttendanceRoster = async (params = {}) => {
+    try {
+      const res = await api.attendance.getRoster(params);
+      if (res?.data && Array.isArray(res.data)) {
+        setAttendance(res.data);
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('Failed to load attendance roster:', err);
+    }
+  };
+
+  const submitAttendanceBatch = async (section, date, period) => {
+    const targetDate = date || '2026-10-24';
+    const targetPeriod = period || 'Daily Morning Roster';
     const result = submitSectionAttendance({ section, attendanceRecords: attendance, students });
     if (!result.success) {
       return result;
@@ -624,6 +638,8 @@ export function CMSProvider({ children }) {
     try {
       const res = await api.attendance.submitBatch({
         section,
+        date: targetDate,
+        period: targetPeriod,
         records: attendance,
       });
 
@@ -642,13 +658,13 @@ export function CMSProvider({ children }) {
         });
       }
 
-      const totalCount = res.data?.total !== undefined ? res.data.total : result.total;
-      const absentCount = res.data?.absentCount !== undefined ? res.data.absentCount : result.absentCount;
+      const totalCount = res?.data?.total !== undefined ? res.data.total : result.total;
+      const absentCount = res?.data?.absentCount !== undefined ? res.data.absentCount : result.absentCount;
 
       addAuditLog(
         'ATTENDANCE_BATCH_SAVE',
-        `Submitted ${totalCount} attendance records for ${section}. ${absentCount} absence alerts dispatched.`,
-        'Dr. Evelyn Reed (Teacher)'
+        `Submitted ${totalCount} attendance records for ${section} on ${targetDate}. ${absentCount} absence alerts dispatched.`,
+        currentUser?.name || 'Dr. Evelyn Reed (Teacher)'
       );
 
       return { success: true, total: totalCount, absentCount, absentRecords: result.absentRecords };
@@ -895,6 +911,7 @@ export function CMSProvider({ children }) {
     deleteStaff,
 
     // Attendance operations
+    fetchAttendanceRoster,
     updateAttendanceStatus,
     updateAttendanceRemark,
     markAllAttendance,

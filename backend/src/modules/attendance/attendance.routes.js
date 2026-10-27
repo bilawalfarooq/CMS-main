@@ -10,33 +10,73 @@ router.use(authenticate);
 // Get section attendance roster
 router.get('/', async (req, res, next) => {
   try {
-    const { section, date = new Date().toISOString().slice(0, 10), period = 'Daily Morning Roster' } = req.query;
+    const { section, date, period = 'Daily Morning Roster' } = req.query;
 
-    const where = {};
-    if (section && section !== 'All') {
-      where.section = { name: section };
+    let targetDate = date;
+    if (!targetDate) {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayCount = await prisma.attendanceRecord.count({
+        where: { date: new Date(todayStr), periodName: period },
+      });
+      if (todayCount > 0) {
+        targetDate = todayStr;
+      } else {
+        const latest = await prisma.attendanceRecord.findFirst({
+          orderBy: { date: 'desc' },
+          select: { date: true },
+        });
+        targetDate = latest ? latest.date.toISOString().slice(0, 10) : todayStr;
+      }
     }
 
-    const records = await prisma.attendanceRecord.findMany({
-      where: {
-        ...where,
-        date: new Date(date),
-        periodName: period,
-      },
-      include: {
-        student: { select: { id: true, name: true, rollNo: true } },
-      },
+    const studentWhere = { status: { not: 'WITHDRAWN' } };
+    if (section && section !== 'All') {
+      studentWhere.section = { name: section };
+    }
+
+    // Get all enrolled students in the section (or school if section is All)
+    const students = await prisma.student.findMany({
+      where: studentWhere,
+      select: { id: true, name: true, rollNo: true },
       orderBy: { rollNo: 'asc' },
     });
 
-    const roster = records.map((r) => ({
-      id: r.id,
-      studentId: r.studentId,
-      name: r.student.name,
-      rollNo: r.rollNo,
-      status: r.status.charAt(0) + r.status.slice(1).toLowerCase(),
-      remarks: r.remarks,
-    }));
+    // Query existing attendance records for targetDate and period
+    const attendanceWhere = {
+      date: new Date(targetDate),
+      periodName: period,
+    };
+    if (section && section !== 'All') {
+      attendanceWhere.section = { name: section };
+    }
+
+    const existingRecords = await prisma.attendanceRecord.findMany({
+      where: attendanceWhere,
+    });
+
+    const recordMap = new Map(existingRecords.map((r) => [r.studentId, r]));
+
+    const roster = students.map((s) => {
+      const existing = recordMap.get(s.id);
+      if (existing) {
+        return {
+          id: existing.id,
+          studentId: s.id,
+          name: s.name,
+          rollNo: s.rollNo,
+          status: existing.status.charAt(0) + existing.status.slice(1).toLowerCase(),
+          remarks: existing.remarks || '',
+        };
+      }
+      return {
+        id: `draft-${s.id}`,
+        studentId: s.id,
+        name: s.name,
+        rollNo: s.rollNo,
+        status: 'Present',
+        remarks: 'On time',
+      };
+    });
 
     return successResponse(res, roster);
   } catch (err) {

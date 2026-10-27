@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle2, 
   XCircle, 
@@ -19,6 +19,9 @@ import { useCMS } from '../../context/CMSContext';
 export default function AttendanceEngineView({ onQueueJob }) {
   const { 
     attendance: roster, 
+    classes,
+    students,
+    fetchAttendanceRoster,
     updateAttendanceStatus, 
     updateAttendanceRemark, 
     markAllAttendance, 
@@ -30,7 +33,31 @@ export default function AttendanceEngineView({ onQueueJob }) {
   const [selectedPeriod, setSelectedPeriod] = useState('Daily Morning Roster');
   const [attendanceDate, setAttendanceDate] = useState('2026-10-24');
   const [submitting, setSubmitting] = useState(false);
+  const [loadingRoster, setLoadingRoster] = useState(false);
   const [notification, setNotification] = useState(null);
+
+  // Fetch roster whenever section, date, or period changes
+  useEffect(() => {
+    let active = true;
+    if (fetchAttendanceRoster && selectedSection) {
+      setLoadingRoster(true);
+      fetchAttendanceRoster({
+        section: selectedSection,
+        date: attendanceDate,
+        period: selectedPeriod,
+      }).finally(() => {
+        if (active) setLoadingRoster(false);
+      });
+    }
+    return () => {
+      active = false;
+    };
+  }, [selectedSection, attendanceDate, selectedPeriod]);
+
+  // Dynamically resolve all section options across grades
+  const availableSections = classes && classes.length > 0
+    ? Array.from(new Set(classes.flatMap((c) => c.sections || [])))
+    : ['10-A (Science)', '10-B (Commerce)', '10-C (General)', '11-ComputerScience', '11-PreMed', '11-PreEng', '12-PreMed', '12-PreEng', '12-Arts', '9-A', '9-B'];
 
   const handleMarkAll = (status) => {
     markAllAttendance(status);
@@ -49,7 +76,7 @@ export default function AttendanceEngineView({ onQueueJob }) {
     setNotification(null);
 
     try {
-      const result = await submitAttendanceBatch(selectedSection);
+      const result = await submitAttendanceBatch(selectedSection, attendanceDate, selectedPeriod);
       if (!result.success) {
         setNotification({
           type: 'error',
@@ -110,7 +137,7 @@ export default function AttendanceEngineView({ onQueueJob }) {
         <div className="flex items-center gap-2.5">
           <button
             onClick={handleSubmitBatch}
-            disabled={submitting}
+            disabled={submitting || loadingRoster || roster.length === 0}
             className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-md shadow-brand-600/30 transition disabled:opacity-50 active:scale-95"
           >
             {submitting ? (
@@ -137,11 +164,11 @@ export default function AttendanceEngineView({ onQueueJob }) {
             onChange={(e) => setSelectedSection(e.target.value)}
             className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold text-slate-800 dark:text-slate-100 outline-none focus:border-brand-500"
           >
-            <option value="10-A (Science)">10-A (Science - Dr. Reed)</option>
-            <option value="10-B (Commerce)">10-B (Commerce)</option>
-            <option value="11-ComputerScience">11-ComputerScience (Prof. Vance)</option>
-            <option value="11-PreMed">11-PreMed</option>
-            <option value="12-PreEng">12-PreEng</option>
+            {availableSections.map((sec) => (
+              <option key={sec} value={sec}>
+                {sec}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -251,61 +278,81 @@ export default function AttendanceEngineView({ onQueueJob }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
-              {roster.map(item => (
-                <tr key={item.studentId} className="hover:bg-slate-50/60 dark:hover:bg-slate-750 transition">
-                  <td className="py-3 px-4 font-mono font-bold text-slate-600 dark:text-slate-400">
-                    {item.rollNo}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="font-bold text-slate-900 dark:text-white">{item.name}</span>
-                    <span className="block font-mono text-[10px] text-slate-400 dark:text-slate-500">{item.studentId}</span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {['Present', 'Absent', 'Late', 'Excused'].map(status => {
-                        const isSelected = item.status === status;
-                        return (
-                          <button
-                            key={status}
-                            onClick={() => handleUpdateStudentStatus(item.studentId, status)}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
-                              isSelected
-                                ? status === 'Present'
-                                  ? 'bg-emerald-600 text-white shadow-sm'
-                                  : status === 'Absent'
-                                  ? 'bg-rose-600 text-white shadow-sm'
-                                  : status === 'Late'
-                                  ? 'bg-amber-500 text-white shadow-sm'
-                                  : 'bg-blue-600 text-white shadow-sm'
-                                : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                            }`}
-                          >
-                            {status}
-                          </button>
-                        );
-                      })}
+              {loadingRoster ? (
+                <tr>
+                  <td colSpan="5" className="py-12 text-center text-slate-400 dark:text-slate-500">
+                    <div className="flex items-center justify-center gap-2">
+                      <RefreshCw className="w-4 h-4 animate-spin text-brand-600" />
+                      <span className="font-semibold text-xs">Loading section roster...</span>
                     </div>
                   </td>
-                  <td className="py-3 px-4">
-                    <input
-                      type="text"
-                      value={item.remarks}
-                      onChange={(e) => handleRemarkChange(item.studentId, e.target.value)}
-                      placeholder="Add teacher remarks..."
-                      className="w-full px-2.5 py-1 bg-slate-50 dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-brand-500 transition"
-                    />
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    {item.status === 'Absent' ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-md border border-rose-200 dark:border-rose-800">
-                        <Send className="w-3 h-3" /> SMS Dispatched
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-slate-400 dark:text-slate-500">Regular Session</span>
-                    )}
+                </tr>
+              ) : roster.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-12 text-center text-slate-400 dark:text-slate-500">
+                    <div className="flex flex-col items-center justify-center gap-1.5">
+                      <Info className="w-5 h-5 text-slate-400" />
+                      <span className="font-semibold text-xs">No students currently enrolled in {selectedSection}.</span>
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                roster.map(item => (
+                  <tr key={item.studentId} className="hover:bg-slate-50/60 dark:hover:bg-slate-750 transition">
+                    <td className="py-3 px-4 font-mono font-bold text-slate-600 dark:text-slate-400">
+                      {item.rollNo}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-bold text-slate-900 dark:text-white">{item.name}</span>
+                      <span className="block font-mono text-[10px] text-slate-400 dark:text-slate-500">{item.studentId}</span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {['Present', 'Absent', 'Late', 'Excused'].map(status => {
+                          const isSelected = item.status === status;
+                          return (
+                            <button
+                              key={status}
+                              onClick={() => handleUpdateStudentStatus(item.studentId, status)}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                                isSelected
+                                  ? status === 'Present'
+                                    ? 'bg-emerald-600 text-white shadow-sm'
+                                    : status === 'Absent'
+                                    ? 'bg-rose-600 text-white shadow-sm'
+                                    : status === 'Late'
+                                    ? 'bg-amber-500 text-white shadow-sm'
+                                    : 'bg-blue-600 text-white shadow-sm'
+                                  : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                              }`}
+                            >
+                              {status}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <input
+                        type="text"
+                        value={item.remarks}
+                        onChange={(e) => handleRemarkChange(item.studentId, e.target.value)}
+                        placeholder="Add teacher remarks..."
+                        className="w-full px-2.5 py-1 bg-slate-50 dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-brand-500 transition"
+                      />
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      {item.status === 'Absent' ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-md border border-rose-200 dark:border-rose-800">
+                          <Send className="w-3 h-3" /> SMS Dispatched
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-slate-400 dark:text-slate-500">Regular Session</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
