@@ -1,0 +1,219 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "EduCore School Management System API",
+    "version": "1.0.0",
+    "description": "Production REST API for EduCore CMS providing endpoints for Auth, Students, Staff, Attendance, Gradebook, Exams, Finance, Documents, and System Telemetry."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Service health and database connectivity"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Authenticate user session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "example": "admin@educore.edu" },
+                  "password": { "type": "string", "example": "Admin#2026!" },
+                  "role": { "type": "string", "example": "super_admin" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "JWT token and authenticated user payload" },
+          "401": { "description": "Invalid credentials or disabled account" }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "summary": "Get authenticated user profile",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": { "description": "User details" }
+        }
+      }
+    },
+    "/students": {
+      "get": {
+        "summary": "List students with search, filters, and pagination",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "grade", "in": "query", "schema": { "type": "string" } },
+          { "name": "section", "in": "query", "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "academicYear", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": {
+          "200": { "description": "Paginated student list" }
+        }
+      },
+      "post": {
+        "summary": "Admit new student",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "dob", "gender", "grade", "section", "admissionDate", "guardianName", "guardianPhone", "guardianEmail"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "dob": { "type": "string", "format": "date" },
+                  "gender": { "type": "string" },
+                  "grade": { "type": "string" },
+                  "section": { "type": "string" },
+                  "admissionDate": { "type": "string", "format": "date" },
+                  "guardianName": { "type": "string" },
+                  "guardianPhone": { "type": "string" },
+                  "guardianEmail": { "type": "string", "format": "email" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Student admitted" },
+          "400": { "description": "Validation or collision failure" }
+        }
+      }
+    },
+    "/students/{id}": {
+      "get": {
+        "summary": "Get student full profile",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Student profile with historical records" },
+          "404": { "description": "Student not found" }
+        }
+      },
+      "patch": {
+        "summary": "Update student biographical profile",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Profile updated without overwriting historical academic records" }
+        }
+      },
+      "delete": {
+        "summary": "Remove student from enrollment",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Student record removed" }
+        }
+      }
+    },
+    "/students/promotion/execute": {
+      "post": {
+        "summary": "Execute atomic batch promotion",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["studentIds", "sourceGrade", "sourceSection", "targetGrade", "targetSection", "targetAcademicYear"],
+                "properties": {
+                  "studentIds": { "type": "array", "items": { "type": "string" } },
+                  "sourceGrade": { "type": "string" },
+                  "sourceSection": { "type": "string" },
+                  "targetGrade": { "type": "string" },
+                  "targetSection": { "type": "string" },
+                  "targetAcademicYear": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Promotion batch executed" },
+          "400": { "description": "Batch validation failure" }
+        }
+      }
+    },
+    "/attendance/batch": {
+      "post": {
+        "summary": "Submit section attendance batch",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["section", "records"],
+                "properties": {
+                  "section": { "type": "string" },
+                  "date": { "type": "string", "format": "date" },
+                  "records": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["studentId", "status"],
+                      "properties": {
+                        "studentId": { "type": "string" },
+                        "status": { "type": "string", "enum": ["Present", "Absent", "Late", "Excused"] },
+                        "remarks": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Section attendance recorded and absence alerts dispatched" }
+        }
+      }
+    },
+    "/finance/invoices/{id}/pay": {
+      "post": {
+        "summary": "Settle invoice payment (Idempotent)",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Invoice marked as paid with generated receipt" }
+        }
+      }
+    }
+  }
+}

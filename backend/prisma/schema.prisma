@@ -1,0 +1,411 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  SUPER_ADMIN @map("super_admin")
+  PRINCIPAL   @map("principal")
+  TEACHER     @map("teacher")
+  ADMIN_STAFF @map("admin_staff")
+  GUARDIAN    @map("guardian")
+  STUDENT     @map("student")
+}
+
+enum StudentStatus {
+  ACTIVE    @map("Active")
+  ON_LEAVE  @map("On-Leave")
+  SUSPENDED @map("Suspended")
+  WITHDRAWN @map("Withdrawn")
+  GRADUATED @map("Graduated")
+}
+
+enum AttendanceStatus {
+  PRESENT @map("Present")
+  ABSENT  @map("Absent")
+  LATE    @map("Late")
+  EXCUSED @map("Excused")
+}
+
+enum InvoiceStatus {
+  PAID      @map("Paid")
+  UPCOMING  @map("Upcoming")
+  OVERDUE   @map("Overdue")
+  CANCELLED @map("Cancelled")
+}
+
+enum DocumentCategory {
+  IDENTITY @map("Identity")
+  LEGAL    @map("Legal")
+  HEALTH   @map("Health")
+  ACADEMIC @map("Academic")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         UserRole
+  userType     String
+  status       String    @default("Active") // Active, Disabled
+  twoFactor    Boolean   @default(false)
+  lastLogin    DateTime?
+  avatar       String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  student   Student?
+  staff     Staff?
+  guardian  Guardian?
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+model AcademicYear {
+  id        String   @id // e.g. "ay-2026"
+  name      String   // e.g. "2026 - 2027"
+  status    String   // Active, Archived
+  startDate DateTime
+  endDate   DateTime
+  isCurrent Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  students    Student[]
+  enrollments StudentEnrollmentHistory[]
+  attendances AttendanceRecord[]
+  grades      GradeRecord[]
+  invoices    Invoice[]
+  timetables  TimetableSlot[]
+
+  @@map("academic_years")
+}
+
+model ClassGrade {
+  id          String   @id // e.g. "c-10"
+  name        String   @unique // e.g. "Grade 10"
+  level       String   // Secondary, Higher Secondary
+  headTeacher String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sections Section[]
+  students Student[]
+  exams    ExamSchedule[]
+
+  @@map("classes")
+}
+
+model Section {
+  id         String     @id @default(cuid())
+  name       String     // e.g. "10-A (Science)"
+  classId    String
+  classGrade ClassGrade @relation(fields: [classId], references: [id], onDelete: Cascade)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  students    Student[]
+  attendances AttendanceRecord[]
+  grades      GradeRecord[]
+  timetables  TimetableSlot[]
+
+  @@unique([classId, name])
+  @@map("sections")
+}
+
+model Subject {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  code       String   @unique
+  department String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  timetables TimetableSlot[]
+  grades     GradeRecord[]
+
+  @@map("subjects")
+}
+
+model Student {
+  id             String        @id // e.g. "STU-2026-0101"
+  userId         String?       @unique
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name           String
+  email          String        @unique
+  rollNo         String
+  admissionDate  DateTime
+  dob            DateTime
+  gender         String
+  bloodGroup     String?
+  previousSchool String?
+  address        String?
+  avatar         String?
+  status         StudentStatus @default(ACTIVE)
+  attendanceRate Float?
+  gpa            String?
+  anomalyAlert   String?
+
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  classId        String
+  classGrade     ClassGrade   @relation(fields: [classId], references: [id])
+  sectionId      String
+  section        Section      @relation(fields: [sectionId], references: [id])
+
+  guardianId String?
+  guardian   Guardian? @relation(fields: [guardianId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  academicHistory StudentEnrollmentHistory[]
+  attendances     AttendanceRecord[]
+  grades          GradeRecord[]
+  invoices        Invoice[]
+  documents       StudentDocument[]
+
+  @@unique([academicYearId, classId, sectionId, rollNo])
+  @@index([status])
+  @@map("students")
+}
+
+model Guardian {
+  id                String   @id @default(cuid())
+  userId            String?  @unique
+  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name              String
+  phone             String
+  email             String
+  secondaryName     String?
+  secondaryPhone    String?
+  secondaryRelation String?
+  emergencyContact  String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  students Student[]
+
+  @@map("guardians")
+}
+
+model StudentEnrollmentHistory {
+  id             String       @id @default(cuid())
+  studentId      String
+  student        Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  gradeName      String
+  sectionName    String
+  rollNo         String
+  gpa            String?
+  attendanceRate Float?
+  status         String       // Promoted, Completed
+  promotedAt     DateTime     @default(now())
+
+  @@map("student_enrollment_history")
+}
+
+model Staff {
+  id              String   @id // e.g. "STF-019"
+  userId          String?  @unique
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name            String
+  email           String   @unique
+  department      String
+  role            String
+  contract        String
+  phone           String?
+  teachingHours   Int      @default(16)
+  maxHours        Int      @default(24)
+  assignedClasses String[]
+  status          String   @default("Active")
+  avatar          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  timetables TimetableSlot[]
+
+  @@map("staff")
+}
+
+model AttendanceRecord {
+  id             String           @id @default(cuid())
+  studentId      String
+  student        Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYearId String
+  academicYear   AcademicYear     @relation(fields: [academicYearId], references: [id])
+  sectionId      String
+  section        Section          @relation(fields: [sectionId], references: [id])
+  date           DateTime         @db.Date
+  periodName     String           @default("Daily Morning Roster")
+  status         AttendanceStatus
+  remarks        String?
+  rollNo         String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([studentId, date, periodName])
+  @@index([sectionId, date])
+  @@map("attendance_records")
+}
+
+model GradeRecord {
+  id             String       @id @default(cuid())
+  studentId      String
+  student        Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  sectionId      String
+  section        Section      @relation(fields: [sectionId], references: [id])
+  subjectId      String?
+  subject        Subject?     @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  quiz1          Float?
+  midterm        Float?
+  project        Float?
+  finalExam      Float?
+  weightedScore  Float?
+  letterGrade    String?
+  status         String       @default("Pending Review") // Pending Review, Verified
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([studentId, academicYearId, subjectId])
+  @@map("grade_records")
+}
+
+model TimetableSlot {
+  id             String       @id @default(cuid())
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  sectionId      String
+  section        Section      @relation(fields: [sectionId], references: [id])
+  dayOfWeek      String       // Monday, Tuesday, ...
+  periodName     String       // Period 1 (08:30 - 09:20)
+  subjectId      String
+  subject        Subject      @relation(fields: [subjectId], references: [id])
+  staffId        String
+  staff          Staff        @relation(fields: [staffId], references: [id])
+  room           String
+  colorTag       String?
+  createdAt      DateTime     @default(now())
+
+  @@unique([sectionId, dayOfWeek, periodName])
+  @@unique([staffId, dayOfWeek, periodName])
+  @@unique([room, dayOfWeek, periodName])
+  @@map("timetable_slots")
+}
+
+model Invoice {
+  id             String        @id // e.g. "INV-2026-081"
+  studentId      String
+  student        Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYearId String
+  academicYear   AcademicYear  @relation(fields: [academicYearId], references: [id])
+  term           String        // Fall Term 2026
+  amount         Float
+  dueDate        DateTime
+  status         InvoiceStatus @default(UPCOMING)
+  paymentDate    DateTime?
+  receipt        String?       @unique
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  payments Payment[]
+
+  @@map("invoices")
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  invoiceId     String
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount        Float
+  receiptNumber String   @unique
+  paymentMethod String   @default("Manual / Portal Gateway")
+  paidAt        DateTime @default(now())
+  recordedBy    String?
+
+  @@map("payments")
+}
+
+model StudentDocument {
+  id          String           @id @default(cuid())
+  studentId   String
+  student     Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title       String
+  category    DocumentCategory
+  size        String
+  mimeType    String
+  storagePath String
+  status      String           @default("Verified")
+  uploadedAt  DateTime         @default(now())
+
+  @@map("student_documents")
+}
+
+model ExamSchedule {
+  id          String     @id @default(cuid())
+  title       String
+  classId     String
+  classGrade  ClassGrade @relation(fields: [classId], references: [id], onDelete: Cascade)
+  date        DateTime
+  timeSlot    String
+  hall        String
+  capacity    Int
+  enrolled    Int
+  invigilator String
+  status      String     @default("Scheduled")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("exam_schedules")
+}
+
+model NotificationLog {
+  id        String   @id @default(cuid())
+  title     String
+  channel   String   // SMS, PDF, Email
+  recipient String
+  status    String   // Delivered, Success, Queued
+  unread    Boolean  @default(true)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@map("notification_logs")
+}
+
+model QueueJobRecord {
+  id          String   @id @default(cuid())
+  jobType     String   // SMS_ALERT, PDF_REPORT, EMAIL_DISPATCH, DB_BACKUP_SNAPSHOT
+  target      String
+  recipient   String
+  status      String   // Queued, Processing, Completed, Failed
+  description String
+  createdAt   DateTime @default(now())
+
+  @@map("queue_jobs")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String
+  action    String
+  entity    String
+  ipAddress String
+  status    String   @default("Success")
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  @@index([action])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
