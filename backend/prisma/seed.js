@@ -149,6 +149,7 @@ async function main() {
   const guardiansData = [
     {
       id: 'g-101',
+      userId: 'usr-106',
       name: 'Tariq Al-Mansoor',
       email: 'tariq.mansoor@gmail.com',
       phone: '+1 (555) 234-9081',
@@ -169,6 +170,7 @@ async function main() {
     },
     {
       id: 'g-103',
+      userId: 'usr-108',
       name: 'David Chen',
       email: 'david.chen@enterprise.org',
       phone: '+1 (555) 441-9921',
@@ -222,6 +224,7 @@ async function main() {
   const studentsData = [
     {
       id: 'STU-2026-0101',
+      userId: 'usr-105',
       name: 'Aisha Al-Mansoor',
       email: 'aisha.m@student.educore.edu',
       gradeName: 'Grade 10',
@@ -246,6 +249,7 @@ async function main() {
     },
     {
       id: 'STU-2026-0102',
+      userId: 'usr-107',
       name: 'Liam Alexander Vance',
       email: 'liam.v@student.educore.edu',
       gradeName: 'Grade 11',
@@ -270,6 +274,7 @@ async function main() {
     },
     {
       id: 'STU-2026-0103',
+      userId: 'usr-109',
       name: 'Chloe Isabella Chen',
       email: 'chloe.c@student.educore.edu',
       gradeName: 'Grade 10',
@@ -366,6 +371,7 @@ async function main() {
     await prisma.student.upsert({
       where: { id: s.id },
       update: {
+        userId: s.userId || null,
         name: s.name,
         email: s.email,
         classId: s.classId,
@@ -387,6 +393,7 @@ async function main() {
       },
       create: {
         id: s.id,
+        userId: s.userId || null,
         name: s.name,
         email: s.email,
         classId: s.classId,
@@ -410,6 +417,9 @@ async function main() {
 
     // Seed enrollment history
     if (s.academicHistory && s.academicHistory.length > 0) {
+      await prisma.studentEnrollmentHistory.deleteMany({
+        where: { studentId: s.id },
+      });
       for (const h of s.academicHistory) {
         await prisma.studentEnrollmentHistory.create({
           data: {
@@ -432,6 +442,7 @@ async function main() {
   const staffData = [
     {
       id: 'STF-019',
+      userId: 'usr-102',
       name: 'Dr. Evelyn Reed',
       email: 'e.reed@educore.edu',
       department: 'Physics & Applied Sciences',
@@ -446,6 +457,7 @@ async function main() {
     },
     {
       id: 'STF-024',
+      userId: 'usr-103',
       name: 'Prof. Marcus Vance',
       email: 'm.vance@educore.edu',
       department: 'Computer Science & Robotics',
@@ -645,6 +657,126 @@ async function main() {
       where: { id: aud.id },
       update: aud,
       create: aud,
+    });
+  }
+
+  // 14. Timetable Slots
+  console.log('14. Seeding Timetable Slots...');
+  const timetableSlots = [
+    // Monday
+    { sectionName: '10-A (Science)', dayOfWeek: 'Monday', periodName: 'Period 1 (08:30 - 09:20)', subjectName: 'Physics & Applied Mechanics', staffId: 'STF-019', room: 'Lab 3', colorTag: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Monday', periodName: 'Period 2 (09:25 - 10:15)', subjectName: 'Pure Mathematics', staffId: 'STF-031', room: 'Room 204', colorTag: 'bg-purple-50 text-purple-700 border-purple-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Monday', periodName: 'Period 3 (10:30 - 11:20)', subjectName: 'Chemistry Practical', staffId: 'STF-019', room: 'Lab 1', colorTag: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Monday', periodName: 'Period 4 (11:25 - 12:15)', subjectName: 'English Literature', staffId: 'STF-042', room: 'Room 102', colorTag: 'bg-amber-50 text-amber-700 border-amber-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Monday', periodName: 'Period 5 (01:00 - 01:50)', subjectName: 'Computer Applications', staffId: 'STF-024', room: 'IT Suite A', colorTag: 'bg-blue-50 text-blue-700 border-blue-200' },
+
+    // Tuesday
+    { sectionName: '10-A (Science)', dayOfWeek: 'Tuesday', periodName: 'Period 1 (08:30 - 09:20)', subjectName: 'Pure Mathematics', staffId: 'STF-031', room: 'Room 204', colorTag: 'bg-purple-50 text-purple-700 border-purple-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Tuesday', periodName: 'Period 2 (09:25 - 10:15)', subjectName: 'Physics & Applied Mechanics', staffId: 'STF-019', room: 'Room 204', colorTag: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Tuesday', periodName: 'Period 3 (10:30 - 11:20)', subjectName: 'Biology Principles', staffId: 'STF-019', room: 'Bio Lab 2', colorTag: 'bg-teal-50 text-teal-700 border-teal-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Tuesday', periodName: 'Period 4 (11:25 - 12:15)', subjectName: 'World History', staffId: 'STF-042', room: 'Room 105', colorTag: 'bg-rose-50 text-rose-700 border-rose-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Tuesday', periodName: 'Period 5 (01:00 - 01:50)', subjectName: 'Physical Education', staffId: 'STF-024', room: 'Sports Complex', colorTag: 'bg-slate-100 text-slate-700 border-slate-200' },
+
+    // Wednesday
+    { sectionName: '10-A (Science)', dayOfWeek: 'Wednesday', periodName: 'Period 1 (08:30 - 09:20)', subjectName: 'Chemistry Practical', staffId: 'STF-019', room: 'Room 204', colorTag: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Wednesday', periodName: 'Period 2 (09:25 - 10:15)', subjectName: 'English Literature', staffId: 'STF-042', room: 'Room 102', colorTag: 'bg-amber-50 text-amber-700 border-amber-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Wednesday', periodName: 'Period 3 (10:30 - 11:20)', subjectName: 'Pure Mathematics', staffId: 'STF-031', room: 'Room 204', colorTag: 'bg-purple-50 text-purple-700 border-purple-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Wednesday', periodName: 'Period 4 (11:25 - 12:15)', subjectName: 'Physics & Applied Mechanics', staffId: 'STF-019', room: 'Lab 3', colorTag: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Wednesday', periodName: 'Period 5 (01:00 - 01:50)', subjectName: 'Robotics Workshop', staffId: 'STF-024', room: 'Robotics Wing', colorTag: 'bg-blue-50 text-blue-700 border-blue-200' },
+
+    // Thursday
+    { sectionName: '10-A (Science)', dayOfWeek: 'Thursday', periodName: 'Period 1 (08:30 - 09:20)', subjectName: 'Computer Applications', staffId: 'STF-024', room: 'IT Suite A', colorTag: 'bg-blue-50 text-blue-700 border-blue-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Thursday', periodName: 'Period 2 (09:25 - 10:15)', subjectName: 'Pure Mathematics', staffId: 'STF-031', room: 'Room 204', colorTag: 'bg-purple-50 text-purple-700 border-purple-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Thursday', periodName: 'Period 3 (10:30 - 11:20)', subjectName: 'English Literature', staffId: 'STF-042', room: 'Room 102', colorTag: 'bg-amber-50 text-amber-700 border-amber-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Thursday', periodName: 'Period 4 (11:25 - 12:15)', subjectName: 'Physics & Applied Mechanics', staffId: 'STF-019', room: 'Room 204', colorTag: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Thursday', periodName: 'Period 5 (01:00 - 01:50)', subjectName: 'Languages & Speech', staffId: 'STF-042', room: 'Central Library', colorTag: 'bg-slate-100 text-slate-700 border-slate-200' },
+
+    // Friday
+    { sectionName: '10-A (Science)', dayOfWeek: 'Friday', periodName: 'Period 1 (08:30 - 09:20)', subjectName: 'Pure Mathematics', staffId: 'STF-031', room: 'Room 204', colorTag: 'bg-purple-50 text-purple-700 border-purple-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Friday', periodName: 'Period 2 (09:25 - 10:15)', subjectName: 'Chemistry Practical', staffId: 'STF-019', room: 'Lab 1', colorTag: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Friday', periodName: 'Period 3 (10:30 - 11:20)', subjectName: 'Physics & Applied Mechanics', staffId: 'STF-019', room: 'Lab 3', colorTag: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Friday', periodName: 'Period 4 (11:25 - 12:15)', subjectName: 'Languages & Speech', staffId: 'STF-042', room: 'Auditorium', colorTag: 'bg-amber-50 text-amber-700 border-amber-200' },
+    { sectionName: '10-A (Science)', dayOfWeek: 'Friday', periodName: 'Period 5 (01:00 - 01:50)', subjectName: 'Computer Applications', staffId: 'STF-024', room: 'Grand Hall', colorTag: 'bg-slate-100 text-slate-700 border-slate-200' },
+  ];
+
+  for (const slot of timetableSlots) {
+    const secId = sectionMap[slot.sectionName];
+    const subId = subjectMap[slot.subjectName];
+    if (secId && subId) {
+      await prisma.timetableSlot.upsert({
+        where: {
+          sectionId_dayOfWeek_periodName: {
+            sectionId: secId,
+            dayOfWeek: slot.dayOfWeek,
+            periodName: slot.periodName,
+          },
+        },
+        update: {
+          subjectId: subId,
+          staffId: slot.staffId,
+          room: slot.room,
+          colorTag: slot.colorTag,
+        },
+        create: {
+          academicYearId: 'ay-2026',
+          sectionId: secId,
+          dayOfWeek: slot.dayOfWeek,
+          periodName: slot.periodName,
+          subjectId: subId,
+          staffId: slot.staffId,
+          room: slot.room,
+          colorTag: slot.colorTag,
+        },
+      });
+    }
+  }
+
+  // 15. Payments
+  console.log('15. Seeding Payments...');
+  const paymentsData = [
+    { id: 'pay-001', invoiceId: 'INV-2026-081', amount: 1850, receiptNumber: 'REC-9941-A', paymentMethod: 'Credit Card / Portal Gateway', paidAt: new Date('2026-08-28'), recordedBy: 'Finance System' },
+    { id: 'pay-002', invoiceId: 'INV-2026-LAB', amount: 220, receiptNumber: 'REC-9972-B', paymentMethod: 'Bank Transfer', paidAt: new Date('2026-09-05'), recordedBy: 'Admissions Office' },
+  ];
+
+  for (const p of paymentsData) {
+    await prisma.payment.upsert({
+      where: { receiptNumber: p.receiptNumber },
+      update: p,
+      create: p,
+    });
+  }
+
+  // 16. Notification Logs
+  console.log('16. Seeding Notification Logs...');
+  const notificationsData = [
+    { id: 'notif-1', title: 'Absence Alert Dispatched', channel: 'SMS & WhatsApp', recipient: 'David Chen (+1 555-441-9921)', status: 'Delivered', unread: true },
+    { id: 'notif-2', title: 'Midterm Report Batch Generated', channel: 'PDF Compiler', recipient: 'Grade 10-A (28 Students)', status: 'Success', unread: true },
+    { id: 'notif-3', title: 'Faculty Schedule Sync Complete', channel: 'System Daemon', recipient: 'All Academic Staff', status: 'Delivered', unread: false },
+    { id: 'notif-4', title: 'Term Fee Payment Received', channel: 'Stripe Gateway', recipient: 'Tariq Al-Mansoor ($1,850)', status: 'Settled', unread: false },
+  ];
+
+  for (const n of notificationsData) {
+    await prisma.notificationLog.upsert({
+      where: { id: n.id },
+      update: n,
+      create: n,
+    });
+  }
+
+  // 17. Queue Job Records
+  console.log('17. Seeding Queue Job Records...');
+  const queueJobsData = [
+    { id: 'q-101', jobType: 'SMS_ALERT', target: '+1 (555) 441-9921', recipient: 'David Chen', status: 'Queued', description: 'Immediate absence alert for Chloe Chen' },
+    { id: 'q-102', jobType: 'PDF_REPORT', target: 'Grade 10-A', recipient: 'Batch (28 records)', status: 'Processing', description: 'Generating Midterm Report Cards batch PDF' },
+    { id: 'q-103', jobType: 'EMAIL_DISPATCH', target: 'all-faculty@educore.edu', recipient: '42 Faculty Members', status: 'Completed', description: 'Academic Council semester review reminder' },
+    { id: 'q-104', jobType: 'DB_BACKUP_SNAPSHOT', target: 's3://educore-backups/pg-snap', recipient: 'System Daemon', status: 'Completed', description: 'Nightly incremental database snapshot' },
+  ];
+
+  for (const q of queueJobsData) {
+    await prisma.queueJobRecord.upsert({
+      where: { id: q.id },
+      update: q,
+      create: q,
     });
   }
 
