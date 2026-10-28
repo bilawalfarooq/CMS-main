@@ -13,6 +13,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useCMS } from '../../context/CMSContext';
+import ClassManagementView from './ClassManagementView';
 
 export default function AcademicHierarchyView({ currentRole }) {
   const { classes: contextClasses, academicYears, simulateAcademicRollover } = useCMS();
@@ -20,6 +21,7 @@ export default function AcademicHierarchyView({ currentRole }) {
   const years = academicYears || [];
   const [selectedYear, setSelectedYear] = useState('ay-2026');
   const [showRolloverNotice, setShowRolloverNotice] = useState(false);
+  const [activeSubView, setActiveSubView] = useState('classes'); // 'classes' | 'pipeline'
 
   const handleSimulateRollover = () => {
     if (simulateAcademicRollover) {
@@ -31,8 +33,45 @@ export default function AcademicHierarchyView({ currentRole }) {
     }, 6000);
   };
 
+  if (activeSubView === 'classes') {
+    return (
+      <div className="space-y-4">
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl w-fit text-xs font-semibold">
+          <button
+            onClick={() => setActiveSubView('classes')}
+            className="px-4 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-bold"
+          >
+            Class & Section Management
+          </button>
+          <button
+            onClick={() => setActiveSubView('pipeline')}
+            className="px-4 py-1.5 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900"
+          >
+            Multi-Year Cycles & Promotion
+          </button>
+        </div>
+        <ClassManagementView currentRole={currentRole} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl w-fit text-xs font-semibold">
+        <button
+          onClick={() => setActiveSubView('classes')}
+          className="px-4 py-1.5 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900"
+        >
+          Class & Section Management
+        </button>
+        <button
+          onClick={() => setActiveSubView('pipeline')}
+          className="px-4 py-1.5 rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-bold"
+        >
+          Multi-Year Cycles & Promotion
+        </button>
+      </div>
+
       {/* Title */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>

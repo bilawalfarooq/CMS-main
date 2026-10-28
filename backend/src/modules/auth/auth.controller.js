@@ -1,10 +1,29 @@
 import * as authService from './auth.service.js';
 import { successResponse, errorResponse } from '../../utils/apiResponse.js';
 
+function extractClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) {
+    const first = (typeof forwarded === 'string' ? forwarded : forwarded[0]).split(',')[0].trim();
+    if (first) return first;
+  }
+  const realIp = req.headers['x-real-ip'];
+  if (realIp) return (typeof realIp === 'string' ? realIp : realIp[0]).trim();
+
+  let raw = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+  if (raw === '::1' || raw === '::ffff:127.0.0.1') {
+    return '127.0.0.1 (Localhost / Karachi Dev)';
+  }
+  if (raw.startsWith('::ffff:')) {
+    return raw.replace('::ffff:', '');
+  }
+  return raw;
+}
+
 export async function login(req, res, next) {
   try {
     const { email, password, role } = req.body;
-    const ipAddress = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
+    const ipAddress = extractClientIp(req);
 
     const result = await authService.authenticateUser({ email, password, role, ipAddress });
     return successResponse(res, result, 'Authentication successful', 200);
@@ -15,7 +34,7 @@ export async function login(req, res, next) {
 
 export async function logout(req, res, next) {
   try {
-    const ipAddress = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
+    const ipAddress = extractClientIp(req);
     if (req.user) {
       await authService.logUserLogout(req.user.id, req.user.name, ipAddress);
     }

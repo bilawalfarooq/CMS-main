@@ -22,8 +22,12 @@ import portalRoutes from './modules/guardians/portal.routes.js';
 import notificationRoutes from './modules/notifications/notification.routes.js';
 import settingsRoutes from './modules/settings/settings.routes.js';
 import auditRoutes from './modules/audit-logs/audit.routes.js';
+import classRoutes from './modules/classes/class.routes.js';
 
 const app = express();
+
+// Trust reverse proxies (Cloudflare, NGINX, localhost proxies)
+app.set('trust proxy', true);
 
 // Middleware
 app.use(
@@ -59,6 +63,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/rbac', rbacRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/academic-years', academicRoutes);
+app.use('/api/v1/classes', classRoutes);
 app.use('/api/v1/students', studentRoutes);
 app.use('/api/v1/staff', staffRoutes);
 app.use('/api/v1/timetable', timetableRoutes);

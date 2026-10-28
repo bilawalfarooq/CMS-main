@@ -82,7 +82,8 @@ model AcademicYear {
   attendances AttendanceRecord[]
   grades      GradeRecord[]
   invoices    Invoice[]
-  timetables  TimetableSlot[]
+  timetables       TimetableSlot[]
+  timetableConfigs TimetableConfig[]
 
   @@map("academic_years")
 }
@@ -90,30 +91,43 @@ model AcademicYear {
 model ClassGrade {
   id          String   @id // e.g. "c-10"
   name        String   @unique // e.g. "Grade 10"
+  code        String?  @unique // e.g. "CLS-10" or "DAE-10"
   level       String   // Secondary, Higher Secondary
-  headTeacher String?
+  program     String?  @default("General") // DAE, DIT, Diploma, Secondary, Higher Secondary
+  department  String?  @default("General Academics")
+  duration    String?  @default("1 Year")
+  semester    String?  // Semester / Year Level
+  status      String   @default("Active") // Active, Archived
+  headTeacher String?  // Coordinator / Class Head Teacher
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  sections Section[]
-  students Student[]
-  exams    ExamSchedule[]
+  sections         Section[]
+  students         Student[]
+  exams            ExamSchedule[]
+  timetableConfigs TimetableConfig[]
 
   @@map("classes")
 }
 
 model Section {
-  id         String     @id @default(cuid())
-  name       String     // e.g. "10-A (Science)"
-  classId    String
-  classGrade ClassGrade @relation(fields: [classId], references: [id], onDelete: Cascade)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id             String     @id @default(cuid())
+  name           String     // e.g. "10-A (Science)"
+  code           String?    // e.g. "SEC-10A"
+  capacity       Int        @default(40)
+  room           String?    // Default classroom / lab
+  operatingHours String?    @default("08:30 - 14:00")
+  status         String     @default("Active") // Active, Inactive
+  classId        String
+  classGrade     ClassGrade @relation(fields: [classId], references: [id], onDelete: Cascade)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 
-  students    Student[]
-  attendances AttendanceRecord[]
-  grades      GradeRecord[]
-  timetables  TimetableSlot[]
+  students         Student[]
+  attendances      AttendanceRecord[]
+  grades           GradeRecord[]
+  timetables       TimetableSlot[]
+  timetableConfigs TimetableConfig[]
 
   @@unique([classId, name])
   @@map("sections")
@@ -281,25 +295,55 @@ model GradeRecord {
 }
 
 model TimetableSlot {
-  id             String       @id @default(cuid())
+  id             String           @id @default(cuid())
   academicYearId String
-  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  academicYear   AcademicYear     @relation(fields: [academicYearId], references: [id])
   sectionId      String
-  section        Section      @relation(fields: [sectionId], references: [id])
-  dayOfWeek      String       // Monday, Tuesday, ...
-  periodName     String       // Period 1 (08:30 - 09:20)
+  section        Section          @relation(fields: [sectionId], references: [id])
+  dayOfWeek      String           // Monday, Tuesday, ...
+  periodName     String           // Period 1 (08:30 - 09:20)
   subjectId      String
-  subject        Subject      @relation(fields: [subjectId], references: [id])
+  subject        Subject          @relation(fields: [subjectId], references: [id])
   staffId        String
-  staff          Staff        @relation(fields: [staffId], references: [id])
+  staff          Staff            @relation(fields: [staffId], references: [id])
   room           String
   colorTag       String?
-  createdAt      DateTime     @default(now())
+  sessionType    String?          @default("Theory") // Theory, Practical, Break, Assembly
+  isDoublePeriod Boolean          @default(false)
+  isDraft        Boolean          @default(false)
+  configId       String?
+  config         TimetableConfig? @relation(fields: [configId], references: [id], onDelete: SetNull)
+  createdAt      DateTime         @default(now())
 
   @@unique([sectionId, dayOfWeek, periodName])
   @@unique([staffId, dayOfWeek, periodName])
   @@unique([room, dayOfWeek, periodName])
   @@map("timetable_slots")
+}
+
+model TimetableConfig {
+  id                    String       @id @default(cuid())
+  academicYearId        String
+  academicYear          AcademicYear @relation(fields: [academicYearId], references: [id])
+  classId               String
+  classGrade            ClassGrade   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  sectionId             String?
+  section               Section?     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  effectiveDate         DateTime?
+  workingDays           String[]     @default(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+  dailyStartTime        String       @default("08:30")
+  dailyEndTime          String       @default("14:00")
+  periodDurationMinutes Int          @default(50)
+  breakIntervals        Json?        // [{ name, startTime, endTime, isLunch }]
+  maxPeriodsPerDay      Int          @default(6)
+  subjectAllocations    Json?        // [{ subjectId, staffId, room, weeklyTheory, weeklyPractical, isDoublePeriod, roomType }]
+  status                String       @default("Draft") // Draft, Published, Archived
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  slots                 TimetableSlot[]
+
+  @@map("timetable_configs")
 }
 
 model Invoice {

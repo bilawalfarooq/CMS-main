@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "seed": "npm --prefix backend run seed",
     "build": "vite build",
     "lint": "oxlint",
     "test": "node --test tests/**/*.test.js",

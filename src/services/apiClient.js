@@ -80,7 +80,7 @@ export const api = {
     testDispatch: (targetNumber) => request('/settings/test-dispatch', { method: 'POST', body: { targetNumber } }),
   },
 
-  // Academic Structure
+  // Academic Structure & Classes
   academics: {
     getYears: () => request('/academic-years'),
     createYear: (data) => request('/academic-years', { method: 'POST', body: data }),
@@ -89,6 +89,21 @@ export const api = {
     getSections: (classId) => request(`/academic-years/sections${classId ? `?classId=${classId}` : ''}`),
     getSubjects: () => request('/academic-years/subjects'),
     simulateRollover: () => request('/academic-years/rollover', { method: 'POST' }),
+  },
+
+  // Class & Section Management
+  classes: {
+    list: (params = {}) => {
+      const q = new URLSearchParams(params).toString();
+      return request(`/classes${q ? `?${q}` : ''}`);
+    },
+    get: (id) => request(`/classes/${id}`),
+    create: (data) => request('/classes', { method: 'POST', body: data }),
+    update: (id, data) => request(`/classes/${id}`, { method: 'PATCH', body: data }),
+    delete: (id, force = false) => request(`/classes/${id}?force=${force}`, { method: 'DELETE' }),
+    createSection: (classId, data) => request(`/classes/${classId}/sections`, { method: 'POST', body: data }),
+    updateSection: (sectionId, data) => request(`/classes/sections/${sectionId}`, { method: 'PATCH', body: data }),
+    deleteSection: (sectionId, force = false) => request(`/classes/sections/${sectionId}?force=${force}`, { method: 'DELETE' }),
   },
 
   // Students & Admissions
@@ -117,13 +132,20 @@ export const api = {
     delete: (id) => request(`/staff/${id}`, { method: 'DELETE' }),
   },
 
-  // Timetable
+  // Timetable Engine
   timetable: {
     get: (params = {}) => {
       const q = new URLSearchParams(params).toString();
       return request(`/timetable${q ? `?${q}` : ''}`);
     },
     create: (data) => request('/timetable', { method: 'POST', body: data }),
+    generate: (payload) => request('/timetable/generate', { method: 'POST', body: payload }),
+    validate: (payload) => request('/timetable/validate', { method: 'POST', body: payload }),
+    publish: (payload) => request('/timetable/publish', { method: 'POST', body: payload }),
+    getConfigs: (params = {}) => {
+      const q = new URLSearchParams(params).toString();
+      return request(`/timetable/configs${q ? `?${q}` : ''}`);
+    },
   },
 
   // Attendance

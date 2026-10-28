@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import prisma from '../src/config/prisma.js';
 
 async function seedTimetables() {
@@ -26,11 +27,11 @@ async function seedTimetables() {
 
   // 11-ComputerScience Slots (Hamza)
   const csPlan = [
-    { subject: csSub, staffId: 'STF-089', room: 'IT Lab Beta', colorTag: 'bg-blue-50 text-blue-700 border-blue-200' },
-    { subject: robSub, staffId: 'STF-082', room: 'Mechatronics Suite', colorTag: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
-    { subject: mathSub, staffId: 'STF-089', room: 'Lecture Hall C', colorTag: 'bg-purple-50 text-purple-700 border-purple-200' },
-    { subject: phySub, staffId: 'STF-082', room: 'Advanced Physics Lab', colorTag: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-    { subject: engSub, staffId: 'STF-089', room: 'Room 312', colorTag: 'bg-amber-50 text-amber-700 border-amber-200' },
+    { subject: csSub, staffId: 'STF-024', room: 'IT Lab Beta', colorTag: 'bg-blue-50 text-blue-700 border-blue-200' },
+    { subject: robSub, staffId: 'STF-024', room: 'Mechatronics Suite', colorTag: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
+    { subject: mathSub, staffId: 'STF-031', room: 'Lecture Hall C', colorTag: 'bg-purple-50 text-purple-700 border-purple-200' },
+    { subject: phySub, staffId: 'STF-019', room: 'Advanced Physics Lab', colorTag: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    { subject: engSub, staffId: 'STF-042', room: 'Room 312', colorTag: 'bg-amber-50 text-amber-700 border-amber-200' },
   ];
 
   for (let d = 0; d < days.length; d++) {
@@ -69,11 +70,11 @@ async function seedTimetables() {
 
   // 9-A Slots (Bilal)
   const bioPlan = [
-    { subject: chmSub, staffId: 'STF-082', room: 'Chem Lab Annex', colorTag: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    { subject: bioSub, staffId: 'STF-089', room: 'Bio Discovery Lab', colorTag: 'bg-teal-50 text-teal-700 border-teal-200' },
-    { subject: mathSub, staffId: 'STF-082', room: 'Math Studio 1', colorTag: 'bg-purple-50 text-purple-700 border-purple-200' },
-    { subject: hisSub, staffId: 'STF-089', room: 'Humanities Wing A', colorTag: 'bg-rose-50 text-rose-700 border-rose-200' },
-    { subject: csSub, staffId: 'STF-082', room: 'Coding Lab 2', colorTag: 'bg-blue-50 text-blue-700 border-blue-200' },
+    { subject: chmSub, staffId: 'STF-019', room: 'Chem Lab Annex', colorTag: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    { subject: bioSub, staffId: 'STF-019', room: 'Bio Discovery Lab', colorTag: 'bg-teal-50 text-teal-700 border-teal-200' },
+    { subject: mathSub, staffId: 'STF-031', room: 'Math Studio 1', colorTag: 'bg-purple-50 text-purple-700 border-purple-200' },
+    { subject: hisSub, staffId: 'STF-042', room: 'Humanities Wing A', colorTag: 'bg-rose-50 text-rose-700 border-rose-200' },
+    { subject: csSub, staffId: 'STF-024', room: 'Coding Lab 2', colorTag: 'bg-blue-50 text-blue-700 border-blue-200' },
   ];
 
   for (let d = 0; d < days.length; d++) {

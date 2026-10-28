@@ -15,6 +15,7 @@ const BulkImportModal = lazy(() => import('./components/students/BulkImportModal
 const StudentPromotionModal = lazy(() => import('./components/students/StudentPromotionModal'));
 const StudentIdCardModal = lazy(() => import('./components/students/StudentIdCardModal'));
 const StaffListView = lazy(() => import('./components/staff/StaffListView'));
+const ClassManagementView = lazy(() => import('./components/academics/ClassManagementView'));
 const AcademicHierarchyView = lazy(() => import('./components/academics/AcademicHierarchyView'));
 const TimetableView = lazy(() => import('./components/timetable/TimetableView'));
 const AttendanceEngineView = lazy(() => import('./components/attendance/AttendanceEngineView'));
@@ -214,6 +215,10 @@ function AppContent() {
                   onAddStaff={addStaff}
                   currentRole={currentRole}
                 />
+              )}
+
+              {activeTab === 'classes' && (
+                <ClassManagementView currentRole={currentRole} />
               )}
 
               {activeTab === 'academics' && (

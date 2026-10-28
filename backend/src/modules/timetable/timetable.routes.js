@@ -3,6 +3,7 @@ import { authenticate } from '../../middleware/authenticate.js';
 import { authorize } from '../../middleware/authorize.js';
 import prisma from '../../config/prisma.js';
 import { successResponse, errorResponse } from '../../utils/apiResponse.js';
+import * as timetableService from './timetable.service.js';
 
 const router = Router();
 router.use(authenticate);
@@ -117,6 +118,57 @@ router.post('/', authorize(['super_admin', 'principal']), async (req, res, next)
     });
 
     return successResponse(res, created, 'Timetable slot created successfully', 201);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Automatic Timetable Generation Engine
+router.post('/generate', authorize(['super_admin', 'principal']), async (req, res, next) => {
+  try {
+    const result = await timetableService.generateAutomatedTimetable(req.body);
+    return successResponse(res, result, 'Automated timetable generation completed');
+  } catch (err) {
+    return errorResponse(res, err.message, 400);
+  }
+});
+
+// Timetable Conflict Validator
+router.post('/validate', authorize(['super_admin', 'principal', 'teacher']), async (req, res, next) => {
+  try {
+    const result = await timetableService.validateTimetableSlots(req.body);
+    return successResponse(res, result);
+  } catch (err) {
+    return errorResponse(res, err.message, 400);
+  }
+});
+
+// Publish Timetable Draft to Production
+router.post('/publish', authorize(['super_admin', 'principal']), async (req, res, next) => {
+  try {
+    const actor = req.user?.name || 'Administrator';
+    const result = await timetableService.publishTimetable({ ...req.body, actor });
+    return successResponse(res, result, 'Timetable published successfully');
+  } catch (err) {
+    return errorResponse(res, err.message, 400);
+  }
+});
+
+// Get Timetable Configuration for a Class / Section
+router.get('/configs', async (req, res, next) => {
+  try {
+    const { classId, sectionId, academicYearId = 'ay-2026' } = req.query;
+    const where = { academicYearId };
+    if (classId) where.classId = classId;
+    if (sectionId) where.sectionId = sectionId;
+
+    const configs = await prisma.timetableConfig.findMany({
+      where,
+      include: { classGrade: true, section: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return successResponse(res, configs);
   } catch (err) {
     next(err);
   }

@@ -7,6 +7,33 @@ import { successResponse } from '../../utils/apiResponse.js';
 const router = Router();
 router.use(authenticate);
 
+function formatKarachiTimestamp(date) {
+  try {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return String(date);
+    const formatted = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Karachi',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(d);
+    return formatted.replace(',', '') + ' (PKT)';
+  } catch (err) {
+    return date.toISOString().replace('T', ' ').slice(0, 19);
+  }
+}
+
+function normalizeDisplayIp(ip) {
+  if (!ip || ip === '::1' || ip === '::ffff:127.0.0.1' || ip === '127.0.0.1') {
+    return '127.0.0.1 (Localhost / Karachi Dev)';
+  }
+  return ip.replace(/^::ffff:/, '');
+}
+
 router.get('/', authorize(['super_admin', 'principal']), async (req, res, next) => {
   try {
     const { action, search } = req.query;
@@ -33,11 +60,12 @@ router.get('/', authorize(['super_admin', 'principal']), async (req, res, next) 
 
     const formatted = logs.map((l) => ({
       id: l.id,
-      timestamp: l.timestamp.toISOString().replace('T', ' ').slice(0, 19),
+      timestamp: formatKarachiTimestamp(l.timestamp),
+      isoTimestamp: l.timestamp.toISOString(),
       actor: l.actor,
       action: l.action,
       entity: l.entity,
-      ip: l.ipAddress,
+      ip: normalizeDisplayIp(l.ipAddress),
       status: l.status,
     }));
 
@@ -54,13 +82,13 @@ router.get('/export', authorize(['super_admin']), async (req, res, next) => {
       take: 1000,
     });
 
-    const headers = ['Timestamp', 'Actor', 'Action', 'Entity', 'IP Address', 'Status'];
+    const headers = ['Timestamp (PKT)', 'Actor', 'Action', 'Entity', 'IP Address', 'Status'];
     const rows = logs.map((l) => [
-      `"${l.timestamp.toISOString().replace('T', ' ').slice(0, 19)}"`,
+      `"${formatKarachiTimestamp(l.timestamp)}"`,
       `"${l.actor.replace(/"/g, '""')}"`,
       `"${l.action.replace(/"/g, '""')}"`,
       `"${l.entity.replace(/"/g, '""')}"`,
-      `"${l.ipAddress}"`,
+      `"${normalizeDisplayIp(l.ipAddress)}"`,
       `"${l.status}"`,
     ]);
 

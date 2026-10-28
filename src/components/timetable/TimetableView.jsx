@@ -5,20 +5,25 @@ import {
   MapPin, 
   User, 
   Printer, 
-  CheckCircle2
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import { api } from '../../services/apiClient';
+import TimetableGeneratorModal from './TimetableGeneratorModal';
 
 export default function TimetableView() {
   const [selectedSection, setSelectedSection] = useState('10-A (Science)');
   const [selectedDay, setSelectedDay] = useState('All');
   const [scheduleData, setScheduleData] = useState({});
+  const [availableClasses, setAvailableClasses] = useState([]);
+  const [availableSubjects, setAvailableSubjects] = useState([]);
+  const [availableStaff, setAvailableStaff] = useState([]);
+  const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
 
-  useEffect(() => {
-    let isMounted = true;
+  const fetchTimetable = () => {
     api.timetable.get({ section: selectedSection })
       .then((res) => {
-        if (isMounted && res?.data && Object.keys(res.data).length > 0) {
+        if (res?.data && Object.keys(res.data).length > 0) {
           setScheduleData((prev) => ({
             ...prev,
             ...res.data,
@@ -28,16 +33,38 @@ export default function TimetableView() {
       .catch((err) => {
         console.warn('Backend timetable fetch notice:', err.message);
       });
+  };
 
-    return () => {
-      isMounted = false;
-    };
+  useEffect(() => {
+    fetchTimetable();
   }, [selectedSection]);
+
+  useEffect(() => {
+    Promise.all([
+      api.classes.list({ limit: 50 }).catch(() => ({ data: { items: [] } })),
+      api.academics.getSubjects().catch(() => ({ data: [] })),
+      api.staff.list({ limit: 50 }).catch(() => ({ data: [] })),
+    ]).then(([classRes, subRes, staffRes]) => {
+      if (classRes?.data?.items) setAvailableClasses(classRes.data.items);
+      if (subRes?.data) setAvailableSubjects(subRes.data);
+      if (staffRes?.data) setAvailableStaff(Array.isArray(staffRes.data) ? staffRes.data : staffRes.data?.items || []);
+    });
+  }, []);
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const currentSchedule = scheduleData[selectedSection] || scheduleData[Object.keys(scheduleData)[0]] || {};
 
   const displayedDays = selectedDay === 'All' ? days : [selectedDay];
+
+  // Derive all available section options
+  const allSections = availableClasses.flatMap((c) =>
+    (c.sections || []).map((s) => ({
+      name: s.name,
+      label: `${c.name} - ${s.name} (${s.room || 'Classroom'})`,
+      classId: c.id,
+      sectionId: s.id,
+    }))
+  );
 
   return (
     <div className="space-y-6">
@@ -53,13 +80,23 @@ export default function TimetableView() {
           </p>
         </div>
 
-        <button
-          onClick={() => window.print()}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 shadow-sm transition"
-        >
-          <Printer className="w-3.5 h-3.5 text-slate-500" />
-          <span>Print Weekly Timetable</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsGeneratorOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition active:scale-95"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Generate / Edit Schedule</span>
+          </button>
+
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 shadow-sm transition"
+          >
+            <Printer className="w-3.5 h-3.5 text-slate-500" />
+            <span>Print Weekly Timetable</span>
+          </button>
+        </div>
       </div>
 
       {/* Control Bar */}
@@ -71,8 +108,18 @@ export default function TimetableView() {
             onChange={(e) => setSelectedSection(e.target.value)}
             className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 outline-none focus:border-brand-500 cursor-pointer"
           >
-            <option value="10-A (Science)">Grade 10-A (Science - Room 204)</option>
-            <option value="11-ComputerScience">Grade 11-ComputerScience (IT Wing)</option>
+            {allSections.length > 0 ? (
+              allSections.map((s) => (
+                <option key={`${s.classId}-${s.name}`} value={s.name}>
+                  {s.label}
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="10-A (Science)">Grade 10-A (Science - Room 204)</option>
+                <option value="11-ComputerScience">Grade 11-ComputerScience (IT Wing)</option>
+              </>
+            )}
           </select>
         </div>
 
@@ -159,6 +206,19 @@ export default function TimetableView() {
           Sync Engine: Horizon
         </span>
       </div>
+
+      {isGeneratorOpen && (
+        <TimetableGeneratorModal
+          isOpen={isGeneratorOpen}
+          onClose={() => setIsGeneratorOpen(false)}
+          onPublished={() => {
+            fetchTimetable();
+          }}
+          classes={availableClasses}
+          subjects={availableSubjects}
+          teachers={availableStaff}
+        />
+      )}
     </div>
   );
 }

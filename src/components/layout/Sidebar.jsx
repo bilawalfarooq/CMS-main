@@ -52,10 +52,16 @@ const getSidebarSections = (currentRole, studentCount, hasAttendanceAnomaly) => 
       icon: Users,
       roles: ['super_admin', 'principal', 'hod', 'admin_staff'],
     },
+    classes: {
+      id: 'classes',
+      label: 'Class & Section ERP',
+      icon: Layers,
+      roles: ['super_admin', 'principal', 'hod', 'teacher', 'admin_staff'],
+    },
     academics: {
       id: 'academics',
-      label: 'Academic Hierarchy',
-      icon: Layers,
+      label: 'Multi-Year Pipeline',
+      icon: BookOpen,
       roles: ['super_admin', 'principal', 'hod', 'teacher', 'admin_staff'],
     },
     timetable: {
@@ -121,31 +127,31 @@ const getSidebarSections = (currentRole, studentCount, hasAttendanceAnomaly) => 
   const sectionsByRole = {
     super_admin: [
       { header: 'Overview', items: ['dashboard'] },
-      { header: 'Academic Management', items: ['students', 'staff', 'academics', 'timetable'] },
+      { header: 'Academic Management', items: ['students', 'classes', 'staff', 'academics', 'timetable'] },
       { header: 'Evaluation & Exams', items: ['attendance', 'gradebook', 'exams'] },
       { header: 'Finance & Documents', items: ['fees', 'documents'] },
       { header: 'Administration', items: ['users', 'rbac', 'audit'] },
     ],
     principal: [
       { header: 'Overview', items: ['dashboard'] },
-      { header: 'Academic Management', items: ['students', 'staff', 'academics', 'timetable'] },
+      { header: 'Academic Management', items: ['students', 'classes', 'staff', 'academics', 'timetable'] },
       { header: 'Evaluation & Exams', items: ['attendance', 'gradebook', 'exams'] },
       { header: 'Finance & Documents', items: ['fees', 'documents'] },
       { header: 'Administration', items: ['users', 'rbac', 'audit'] },
     ],
     hod: [
       { header: 'Overview', items: ['dashboard'] },
-      { header: 'Department Academics', items: ['students', 'staff', 'academics', 'timetable'] },
+      { header: 'Department Academics', items: ['students', 'classes', 'staff', 'academics', 'timetable'] },
       { header: 'Evaluation & Exams', items: ['attendance', 'gradebook', 'exams'] },
     ],
     teacher: [
       { header: 'Overview', items: ['dashboard'] },
-      { header: 'My Classes', items: ['students', 'academics', 'timetable'] },
+      { header: 'My Classes', items: ['students', 'classes', 'academics', 'timetable'] },
       { header: 'Teaching & Grades', items: ['attendance', 'gradebook', 'exams'] },
     ],
     admin_staff: [
       { header: 'Overview', items: ['dashboard'] },
-      { header: 'Enrollment & Records', items: ['students', 'staff', 'academics', 'timetable'] },
+      { header: 'Enrollment & Records', items: ['students', 'classes', 'staff', 'academics', 'timetable'] },
       { header: 'Operations', items: ['attendance', 'exams', 'fees', 'documents'] },
       { header: 'Administration', items: ['users'] },
     ],

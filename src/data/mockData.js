@@ -20,3 +20,10 @@ export const ROLES = [
   { id: 'student', label: 'Student', description: 'View attendance, results, fee status & timetable', badgeColor: 'bg-sky-100 text-sky-800 border-sky-200' },
   { id: 'guardian', label: 'Guardian / Parent', description: 'Attendance tracking, fee slips, exam slips & results', badgeColor: 'bg-amber-100 text-amber-800 border-amber-200' },
 ];
+
+export const INITIAL_STUDENTS = [];
+export const INITIAL_CLASSES = [];
+export const INITIAL_ATTENDANCE = [];
+export const INITIAL_GRADES = [];
+export const MOCK_INVOICES = [];
+
